@@ -57,50 +57,58 @@ def printApiFlagIfRaised(state):
         if flag:
             print("error flag raised")
 
-sensorHandle = -1
+sensorHandle1 = -1
+sensorHandle2 = -1
 def collect_observations(state):
-    global sensorHandle
+    global sensorHandle1
+    global sensorHandle2
     if not dataExchange.api_data_fully_ready(state):
         return
     writeAvailableApiDataFile(False) # Change to True to write the file in output folder
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
-    if sensorHandle < 0: 
-        # sensorHandle = dataExchange.get_variable_handle(state, 
-        #                                                 "Zone Mean Air Temperature", 
-        #                                                 "PERIMETER_ZN_1")
-        sensorHandle = dataExchange.get_variable_handle(state, 
+    if sensorHandle1 < 0 or sensorHandle2 < 0: 
+        sensorHandle1 = dataExchange.get_variable_handle(state, 
+                                                        "Zone Mean Air Temperature", 
+                                                        "BLOCK1:ZONE1")
+        sensorHandle2 = dataExchange.get_variable_handle(state, 
                                                         "System Node Temperature", 
                                                         "BOILER WATER OUTLET NODE")
     else: 
         hour = dataExchange.hour(state)
         minute = dataExchange.minutes(state)
-        sensorValue = dataExchange.get_variable_value(state, sensorHandle) 
-        print(str(warmUpFlag) + "__" + str(hour) + ":" + str(minute) + "__" + str(sensorValue))
+
+        sensorValue1 = dataExchange.get_variable_value(state, sensorHandle1) 
+        sensorValue2 = dataExchange.get_variable_value(state, sensorHandle2) 
+
+        print(str(hour) + ":" + str(minute) + "__" + str(sensorValue1) + "__" + str(sensorValue2))
     return
 
-actuatorHandleTemp = -1
+actuatorHandle1 = -1
+actuatorHandle2 = -1
 def send_actions(state):
-    global actuatorHandleTemp
+    global actuatorHandle1
+    global actuatorHandle2
     if not dataExchange.api_data_fully_ready(state):
         return
-    if actuatorHandleTemp < 0: 
-        actuatorHandleTemp = dataExchange.get_actuator_handle(state, 
-                                                              "Schedule:Compact", 
-                                                              "Schedule Value", 
-                                                              "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
-        # actuatorHandleTemp = dataExchange.get_actuator_handle(state, 
-        #                                                       "System Node Setpoint", 
-        #                                                       "Temperature Setpoint", 
-        #                                                       "PERIMETER_ZN_1 DIRECT AIR INLET NODE NAME")
+    if actuatorHandle1 < 0: 
+        actuatorHandle1 = dataExchange.get_actuator_handle(state, 
+                                                           "Schedule:Compact", 
+                                                           "Schedule Value", 
+                                                           "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
+        actuatorHandle2 = dataExchange.get_actuator_handle(state, 
+                                                           "Schedule:Compact", 
+                                                           "Schedule Value", 
+                                                           "BLOCK1:ZONE1 HEATING SETPOINT SCHEDULE")
     else:
         printApiFlagIfRaised(state)
         
-        actuatorValueTemp = dataExchange.get_actuator_value(state, actuatorHandleTemp)
-        print("Set Point: " + str(actuatorValueTemp))
+        # actuatorValue2 = dataExchange.get_actuator_value(state, actuatorHandle2)
+        # print("Set Point: " + str(actuatorValue2))
 
-        dataExchange.set_actuator_value(state, actuatorHandleTemp, 60.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
     return
 
 # runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
