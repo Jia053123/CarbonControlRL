@@ -7,7 +7,7 @@ from pyenergyplus.api import EnergyPlusAPI
 iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
 
-idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPreset.idf"
+idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetMA.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/IECC_OfficeSmall_STD2018_SanDiego.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/ASHRAE901_OfficeSmall_STD2019_SanDiego.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/ASHRAE901_OfficeSmall_STD2019_NewYork.idf"
@@ -52,6 +52,11 @@ def writeAvailableApiDataFile(run=True):
                 temp_file.write(csvData)
             hasWrittenCSV = True
 
+def printApiFlagIfRaised(state):
+        flag = dataExchange.api_error_flag(state)
+        if flag:
+            print("error flag raised")
+
 sensorHandle = -1
 def collect_observations(state):
     global sensorHandle
@@ -62,9 +67,12 @@ def collect_observations(state):
     warmUpFlag = dataExchange.warmup_flag(state)
 
     if sensorHandle < 0: 
+        # sensorHandle = dataExchange.get_variable_handle(state, 
+        #                                                 "Zone Mean Air Temperature", 
+        #                                                 "PERIMETER_ZN_1")
         sensorHandle = dataExchange.get_variable_handle(state, 
-                                                        "Zone Mean Air Temperature", 
-                                                        "BLOCK1:ZONE1")
+                                                        "System Node Temperature", 
+                                                        "BOILER WATER OUTLET NODE")
     else: 
         hour = dataExchange.hour(state)
         minute = dataExchange.minutes(state)
@@ -72,26 +80,31 @@ def collect_observations(state):
         print(str(warmUpFlag) + "__" + str(hour) + ":" + str(minute) + "__" + str(sensorValue))
     return
 
-actuatorHandle = -1
+actuatorHandleTemp = -1
 def send_actions(state):
-    global actuatorHandle
+    global actuatorHandleTemp
     if not dataExchange.api_data_fully_ready(state):
         return
-    if actuatorHandle < 0:
-        actuatorHandle = dataExchange.get_actuator_handle(state, 
-                                                          "System Node Setpoint", 
-                                                          "Temperature Setpoint", 
-                                                          "HW LOOP SUPPLY SIDE OUTLET")
+    if actuatorHandleTemp < 0: 
+        actuatorHandleTemp = dataExchange.get_actuator_handle(state, 
+                                                              "Schedule:Compact", 
+                                                              "Schedule Value", 
+                                                              "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
+        # actuatorHandleTemp = dataExchange.get_actuator_handle(state, 
+        #                                                       "System Node Setpoint", 
+        #                                                       "Temperature Setpoint", 
+        #                                                       "PERIMETER_ZN_1 DIRECT AIR INLET NODE NAME")
     else:
-        # print(actuatorHandle)
-        flag = dataExchange.api_error_flag(state)
-        if flag:
-            print("error flag raised")
-        actuatorValue = dataExchange.get_actuator_value(state, actuatorHandle)
-        print("acturator: " + str(actuatorValue))
+        printApiFlagIfRaised(state)
+        
+        actuatorValueTemp = dataExchange.get_actuator_value(state, actuatorHandleTemp)
+        print("Set Point: " + str(actuatorValueTemp))
+
+        dataExchange.set_actuator_value(state, actuatorHandleTemp, 60.0)
     return
 
-runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
+# runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
+runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
 
 exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', epwPath, idfPath])

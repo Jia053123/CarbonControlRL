@@ -9,4 +9,7 @@ File -> export -> energy plus -> simulation
 In export options: 
 	A lot of options to choose from! 
 	In Output tab, Miscellaneous, check EDD/RDD file if needed (slightly slows down the simulation) 
-	
+
+==========================================
+
+All of the Mass Flow Rate Setpoint returns -999 (unrestricted?)
