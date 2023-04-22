@@ -34,14 +34,20 @@ dataExchange = energyplus_api.exchange
 energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
-counter = 0
+hasWrittenCSV = False
 def collect_observations(state):
-    global counter
-    if counter == 0: 
+    global hasWrittenCSV
+    if hasWrittenCSV == False: 
+        print("writing CSV...")
+        csvPath = os.path.join(outputDir, "availableApiData.csv")
+        try:
+            os.remove(csvPath)
+        except OSError:
+            pass
         csvData = dataExchange.list_available_api_data_csv(energyplus_state)
-        with open(os.path.join(outputDir, "availableApiData.csv"), 'wb') as temp_file:
+        with open(csvPath, 'wb') as temp_file:
             temp_file.write(csvData)
-        counter = 1
+        hasWrittenCSV = True
     handle = dataExchange.get_variable_handle(state, "Zone Mean Air Temperature", "BLOCK1:ZONE1")
     if handle >= 0:
         hour = dataExchange.hour(state)
