@@ -50,12 +50,14 @@ def collect_observations(state):
             temp_file.write(csvData)
         hasWrittenCSV = True
     
+    warmUpFlag = dataExchange.warmup_flag(state)
+
     if handle < 0: 
         handle = dataExchange.get_variable_handle(state, "Zone Mean Air Temperature", "BLOCK1:ZONE1")
     else: 
         hour = dataExchange.hour(state)
         sensorValue = dataExchange.get_variable_value(state, handle) 
-        print(str(hour) + ":" + str(sensorValue))
+        print(str(warmUpFlag) + ":" + str(hour) + ":" + str(sensorValue))
     return
 
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
