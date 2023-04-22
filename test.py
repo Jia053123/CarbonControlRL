@@ -57,7 +57,7 @@ def collect_observations(state):
     global sensorHandle
     if not dataExchange.api_data_fully_ready(state):
         return
-    writeAvailableApiDataFile(True) # Change to True to write the file in output folder
+    writeAvailableApiDataFile(False) # Change to True to write the file in output folder
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
@@ -79,9 +79,9 @@ def send_actions(state):
         return
     if actuatorHandle < 0:
         actuatorHandle = dataExchange.get_actuator_handle(state, 
-                                                          "Plant Component Boiler:HotWater", 
-                                                          "On/Off Supervisory", 
-                                                          "BOILER")
+                                                          "System Node Setpoint", 
+                                                          "Temperature Setpoint", 
+                                                          "HW LOOP SUPPLY SIDE OUTLET")
     else:
         # print(actuatorHandle)
         flag = dataExchange.api_error_flag(state)
