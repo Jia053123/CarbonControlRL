@@ -3,7 +3,6 @@ import os
 from eppy import modeleditor
 from eppy.modeleditor import IDF
 from pyenergyplus.api import EnergyPlusAPI
-# from pyenergyplus.datatransfer import DataExchange
 
 iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
@@ -35,8 +34,10 @@ energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
 hasWrittenCSV = False
+handle = -1
 def collect_observations(state):
     global hasWrittenCSV
+    global handle
     if hasWrittenCSV == False: 
         print("writing CSV...")
         csvPath = os.path.join(outputDir, "availableApiData.csv")
@@ -48,8 +49,10 @@ def collect_observations(state):
         with open(csvPath, 'wb') as temp_file:
             temp_file.write(csvData)
         hasWrittenCSV = True
-    handle = dataExchange.get_variable_handle(state, "Zone Mean Air Temperature", "BLOCK1:ZONE1")
-    if handle >= 0:
+    
+    if handle < 0: 
+        handle = dataExchange.get_variable_handle(state, "Zone Mean Air Temperature", "BLOCK1:ZONE1")
+    else: 
         hour = dataExchange.hour(state)
         sensorValue = dataExchange.get_variable_value(state, handle) 
         print(str(hour) + ":" + str(sensorValue))
