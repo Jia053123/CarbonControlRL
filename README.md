@@ -12,4 +12,4 @@ In export options:
 
 ==========================================
 
-All of the Mass Flow Rate Setpoint returns -999 (unrestricted?)
+Make sure ! Schedule: On 24/7 is set to 1 (active) with a high Cooling setpoint if using the schedule as actuator! 

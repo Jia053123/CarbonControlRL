@@ -57,32 +57,36 @@ def printApiFlagIfRaised(state):
         if flag:
             print("error flag raised")
 
-sensorHandle1 = -1
-sensorHandle2 = -1
+variableHandle1 = -1
+meterHandle2 = -1
+meterHandle3 = -1
 def collect_observations(state):
-    global sensorHandle1
-    global sensorHandle2
+    global variableHandle1
+    global meterHandle2
+    global meterHandle3
     if not dataExchange.api_data_fully_ready(state):
         return
     writeAvailableApiDataFile(False) # Change to True to write the file in output folder
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
-    if sensorHandle1 < 0 or sensorHandle2 < 0: 
-        sensorHandle1 = dataExchange.get_variable_handle(state, 
-                                                        "Zone Mean Air Temperature", 
-                                                        "BLOCK1:ZONE1")
-        sensorHandle2 = dataExchange.get_variable_handle(state, 
-                                                        "System Node Temperature", 
-                                                        "BOILER WATER OUTLET NODE")
+    if variableHandle1 < 0 or meterHandle2 < 0: 
+        variableHandle1 = dataExchange.get_variable_handle(state, 
+                                                           "Zone Mean Air Temperature", 
+                                                           "BLOCK1:ZONE1")
+        meterHandle2 = dataExchange.get_meter_handle(state, 
+                                                     "Boiler:Heating:NaturalGas")
+        meterHandle3 = dataExchange.get_meter_handle(state, 
+                                                     "Pumps:Electricity")
     else: 
         hour = dataExchange.hour(state)
         minute = dataExchange.minutes(state)
 
-        sensorValue1 = dataExchange.get_variable_value(state, sensorHandle1) 
-        sensorValue2 = dataExchange.get_variable_value(state, sensorHandle2) 
+        variableValue1 = dataExchange.get_variable_value(state, variableHandle1) 
+        meterValue2 = dataExchange.get_meter_value(state, meterHandle2) 
+        meterValue3 = dataExchange.get_meter_value(state, meterHandle3) 
 
-        print(str(hour) + ":" + str(minute) + "__" + str(sensorValue1) + "__" + str(sensorValue2))
+        print(str(hour) + ":" + str(minute) + "__" + str(variableValue1) + "__" + str(meterValue2) + "__" + str(meterValue3))
     return
 
 actuatorHandle1 = -1
