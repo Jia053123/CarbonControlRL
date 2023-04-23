@@ -1,8 +1,8 @@
 import sys
 import os
-from eppy import modeleditor
-from eppy.modeleditor import IDF
 from pyenergyplus.api import EnergyPlusAPI
+import gymnasium as gym
+from gymnasium.spaces import Box
 
 iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
@@ -19,19 +19,41 @@ epwPath = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.7250
 
 outputDir = os.path.dirname(idfPath)  + '/output'
 
-print(outputDir)
-
-# IDF.setiddname(iddPath)
-# idf = IDF(idfPath, epwPath)
-# print(idf.idfobjects['TIMESTEP']) # put the name of the object you'd like to look at in brackets
-
-# =================================================
-
 energyplus_api = EnergyPlusAPI()
 dataExchange = energyplus_api.exchange
 
 energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
+
+
+class EnergyPlusEnv(gym.Env):
+    def __init__(self):
+        self.episode = -1
+        self.timestep = 0
+
+        # action space: Boiler Temperature and Heating Setpoint
+        self.action_space: Box = Box()
+
+        return
+    
+    def reset(self):
+        # initiate a new episode
+        self.episode += 1
+        return observation, info
+    
+    def step(self, action):
+        # compute the state of the environment after applying the action
+        self.timestep += 1
+        return observation, reward, terminated, done, info
+    
+    def render(self):
+        # render the graphs
+        return
+    
+    def close(self):
+        # close any open resources that were used by the environment
+        return
+    
 
 
 
