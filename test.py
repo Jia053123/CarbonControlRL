@@ -3,10 +3,13 @@ import os
 from pyenergyplus.api import EnergyPlusAPI
 import gymnasium as gym
 from gymnasium.spaces import Box
+import numpy as np
+from queue import Queue, Empty, Full
 
 iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
 
+# idfPath = "C:/Users/Eppy/Documents/IDFs/TT_03-26_Test.idf"
 idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetMA.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/IECC_OfficeSmall_STD2018_SanDiego.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/ASHRAE901_OfficeSmall_STD2019_SanDiego.idf"
@@ -31,20 +34,59 @@ class EnergyPlusEnv(gym.Env):
         self.episode = -1
         self.timestep = 0
 
-        # action space: Boiler Temperature and Heating Setpoint
-        self.action_space: Box = Box()
+        # observation space: Zone Mean Air Temp: 0-50C; Natural Gas for heating: 0-100 * 1000000
+        self.observation_space = Box(low=np.array([0, 0], high=np.array([50, 100]), dtype=np.float32))
+
+        # action space: Boiler Temperature: 20-90C; Heating Setpoint: 15-30C
+        self.action_space = Box(low=np.array([20, 15], high=np.array([90, 30]), dtype=np.float32))
+
+        # self.energyplus_runner: Optional[EnergyPlusRunner] = None
+        self.observation_queue: Queue = None
+        self.action_queue: Queue = None
 
         return
     
     def reset(self):
         # initiate a new episode
         self.episode += 1
-        return observation, info
+
+        # if the two threads coorporate correctly only a single entry is needed
+        self.observation_queue = Queue(maxsize=1)
+        self.action_queue = Queue(maxsize=1)
+
+        # randomly generate the first past observation
+        self.last_observation = self.observation_space.sample()
+
+        try:
+            observation = self.obs_queue.get()
+        except Empty:
+            observation = self.last_obs
+
+        observationList = np.array(list(observation.values()))
+        info = {}
+        return observationList, info
     
     def step(self, action):
         # compute the state of the environment after applying the action
         self.timestep += 1
-        return observation, reward, terminated, done, info
+
+        timeout = 2
+        try:
+            self.action_queue.put(action, timeout=timeout)
+            self.last_observation = observation = self.observation_queue.get(timeout=timeout)
+        except (Full, Empty):
+            terminated = True
+            observation = self.last_observation
+
+        observationList = np.array(list(observation.values()))
+        
+        reward = -1 * observationList[1]
+        if observationList[0] < 20:
+            reward -= 1000
+
+        done = False
+        info = {}
+        return observationList, reward, terminated, done, info
     
     def render(self):
         # render the graphs
@@ -88,7 +130,7 @@ def collect_observations(state):
     global meterHandle3
     if not dataExchange.api_data_fully_ready(state):
         return
-    writeAvailableApiDataFile(False) # Change to True to write the file in output folder
+    writeAvailableApiDataFile(True) # Change to True to write the file in output folder
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
@@ -137,7 +179,7 @@ def send_actions(state):
         dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
     return
 
-# runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
+runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
 runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
 
