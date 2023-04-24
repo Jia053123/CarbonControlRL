@@ -5,6 +5,7 @@ import gymnasium as gym
 from gymnasium.spaces import Box
 import numpy as np
 from queue import Queue, Empty, Full
+import threading
 
 iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
@@ -30,14 +31,12 @@ energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
 
-
-
 class EnergyPlusEnv(gym.Env):
     def __init__(self):
         self.episode = -1
         self.timestep = 0
 
-        # observation space: Zone Mean Air Temp: 0-50C; Natural Gas for heating: 0-100 * 1000000
+        # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0, 0], high=np.array([50, 100]), dtype=np.float32))
 
         # action space: Boiler Temperature: 20-90C; Heating Setpoint: 15-30C
@@ -207,7 +206,7 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue2))
         # print("Set Point: " + str(actuatorValue3))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 60.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
         dataExchange.set_actuator_value(state, actuatorHandle2, 25.0)
         dataExchange.set_actuator_value(state, actuatorHandle3, 30.0)
     return
@@ -218,6 +217,4 @@ runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collec
 
 exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', epwPath, idfPath])
 print("exit code (zero is success): " + str(exitCode))
-
-
 
