@@ -9,8 +9,9 @@ from queue import Queue, Empty, Full
 iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
 
+idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/TT_03-26_Test.idf"
-idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetMA.idf"
+# idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetMA.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/IECC_OfficeSmall_STD2018_SanDiego.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/ASHRAE901_OfficeSmall_STD2019_SanDiego.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/ASHRAE901_OfficeSmall_STD2019_NewYork.idf"
@@ -79,7 +80,7 @@ class EnergyPlusEnv(gym.Env):
             observation = self.last_observation
 
         observationList = np.array(list(observation.values()))
-        
+
         reward = -1 * observationList[1]
         if observationList[0] < 20:
             reward -= 1000
@@ -124,24 +125,29 @@ def printApiFlagIfRaised(state):
 variableHandle1 = -1
 meterHandle2 = -1
 meterHandle3 = -1
+variableHandle4 = -1
 def collect_observations(state):
     global variableHandle1
     global meterHandle2
     global meterHandle3
+    global variableHandle4
     if not dataExchange.api_data_fully_ready(state):
         return
-    writeAvailableApiDataFile(True) # Change to True to write the file in output folder
+    writeAvailableApiDataFile(False) # Change to True to write the file in output folder
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
-    if variableHandle1 < 0 or meterHandle2 < 0: 
+    if variableHandle1 < 0 or meterHandle2 < 0 or meterHandle3 < 0 or variableHandle4 < 0: 
         variableHandle1 = dataExchange.get_variable_handle(state, 
                                                            "Zone Mean Air Temperature", 
                                                            "BLOCK1:ZONE1")
         meterHandle2 = dataExchange.get_meter_handle(state, 
-                                                     "Boiler:Heating:NaturalGas")
+                                                     "Boiler:Heating:Electricity")
         meterHandle3 = dataExchange.get_meter_handle(state, 
                                                      "Pumps:Electricity")
+        variableHandle4 = dataExchange.get_variable_handle(state, 
+                                                           "System Node Temperature", 
+                                                           "BOILER WATER OUTLET NODE")
     else: 
         hour = dataExchange.hour(state)
         minute = dataExchange.minutes(state)
@@ -149,8 +155,15 @@ def collect_observations(state):
         variableValue1 = dataExchange.get_variable_value(state, variableHandle1) 
         meterValue2 = dataExchange.get_meter_value(state, meterHandle2) 
         meterValue3 = dataExchange.get_meter_value(state, meterHandle3) 
+        variableValue4 = dataExchange.get_variable_value(state, variableHandle4) 
 
-        print(str(hour) + ":" + str(minute) + "__" + str(variableValue1) + "__" + str(meterValue2) + "__" + str(meterValue3))
+        print(str(hour) + 
+              ":" + str(minute) + 
+              "__" + str(variableValue1) + 
+              "__" + str(meterValue2) + 
+              "__" + str(meterValue3) + 
+              "__" + str(variableValue4))
+        
     return
 
 actuatorHandle1 = -1
@@ -172,10 +185,12 @@ def send_actions(state):
     else:
         printApiFlagIfRaised(state)
         
-        # actuatorValue2 = dataExchange.get_actuator_value(state, actuatorHandle2)
+        actuatorValue1 = dataExchange.get_actuator_value(state, actuatorHandle1)
+        actuatorValue2 = dataExchange.get_actuator_value(state, actuatorHandle2)
+        # print("Set Point: " + str(actuatorValue1))
         # print("Set Point: " + str(actuatorValue2))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 60.0)
         dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
     return
 
