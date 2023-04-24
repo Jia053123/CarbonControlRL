@@ -168,9 +168,11 @@ def collect_observations(state):
 
 actuatorHandle1 = -1
 actuatorHandle2 = -1
+actuatorHandle3 = -1
 def send_actions(state):
     global actuatorHandle1
     global actuatorHandle2
+    global actuatorHandle3
     if not dataExchange.api_data_fully_ready(state):
         return
     if actuatorHandle1 < 0: 
@@ -182,16 +184,23 @@ def send_actions(state):
                                                            "Schedule:Compact", 
                                                            "Schedule Value", 
                                                            "BLOCK1:ZONE1 HEATING SETPOINT SCHEDULE")
+        actuatorHandle3 = dataExchange.get_actuator_handle(state, 
+                                                           "Schedule:Compact", 
+                                                           "Schedule Value", 
+                                                           "BLOCK1:ZONE1 COOLING SETPOINT SCHEDULE")
     else:
         printApiFlagIfRaised(state)
         
-        actuatorValue1 = dataExchange.get_actuator_value(state, actuatorHandle1)
-        actuatorValue2 = dataExchange.get_actuator_value(state, actuatorHandle2)
+        # actuatorValue1 = dataExchange.get_actuator_value(state, actuatorHandle1)
+        # actuatorValue2 = dataExchange.get_actuator_value(state, actuatorHandle2)
+        # actuatorValue3 = dataExchange.get_actuator_value(state, actuatorHandle3)
         # print("Set Point: " + str(actuatorValue1))
         # print("Set Point: " + str(actuatorValue2))
+        # print("Set Point: " + str(actuatorValue3))
 
         dataExchange.set_actuator_value(state, actuatorHandle1, 60.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 25.0)
+        dataExchange.set_actuator_value(state, actuatorHandle3, 30.0)
     return
 
 runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
