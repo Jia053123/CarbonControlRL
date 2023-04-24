@@ -30,6 +30,8 @@ energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
 
+
+
 class EnergyPlusEnv(gym.Env):
     def __init__(self):
         self.episode = -1
@@ -123,29 +125,34 @@ def printApiFlagIfRaised(state):
             print("error flag raised")
 
 variableHandle1 = -1
-meterHandle2 = -1
+variableHandle2 = -1
 meterHandle3 = -1
-variableHandle4 = -1
+meterHandle4 = -1
+variableHandle5 = -1
 def collect_observations(state):
     global variableHandle1
-    global meterHandle2
+    global variableHandle2
     global meterHandle3
-    global variableHandle4
+    global meterHandle4
+    global variableHandle5
     if not dataExchange.api_data_fully_ready(state):
         return
     writeAvailableApiDataFile(False) # Change to True to write the file in output folder
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
-    if variableHandle1 < 0 or meterHandle2 < 0 or meterHandle3 < 0 or variableHandle4 < 0: 
+    if variableHandle1<0 or variableHandle2<0 or meterHandle3<0 or meterHandle4<0 or variableHandle5<0: 
         variableHandle1 = dataExchange.get_variable_handle(state, 
                                                            "Zone Mean Air Temperature", 
                                                            "BLOCK1:ZONE1")
-        meterHandle2 = dataExchange.get_meter_handle(state, 
-                                                     "Boiler:Heating:Electricity")
+        variableHandle2 = dataExchange.get_variable_handle(state, 
+                                                           "Site Outdoor Air Drybulb Temperature", 
+                                                           "ENVIRONMENT")
         meterHandle3 = dataExchange.get_meter_handle(state, 
+                                                     "Boiler:Heating:Electricity")
+        meterHandle4 = dataExchange.get_meter_handle(state, 
                                                      "Pumps:Electricity")
-        variableHandle4 = dataExchange.get_variable_handle(state, 
+        variableHandle5 = dataExchange.get_variable_handle(state, 
                                                            "System Node Temperature", 
                                                            "BOILER WATER OUTLET NODE")
     else: 
@@ -153,16 +160,18 @@ def collect_observations(state):
         minute = dataExchange.minutes(state)
 
         variableValue1 = dataExchange.get_variable_value(state, variableHandle1) 
-        meterValue2 = dataExchange.get_meter_value(state, meterHandle2) 
+        variableValue2 = dataExchange.get_variable_value(state, variableHandle2) 
         meterValue3 = dataExchange.get_meter_value(state, meterHandle3) 
-        variableValue4 = dataExchange.get_variable_value(state, variableHandle4) 
+        meterValue4 = dataExchange.get_meter_value(state, meterHandle4) 
+        variableValue5 = dataExchange.get_variable_value(state, variableHandle5) 
 
         print(str(hour) + 
               ":" + str(minute) + 
               "__" + str(variableValue1) + 
-              "__" + str(meterValue2) + 
+              "__" + str(variableValue2) + 
               "__" + str(meterValue3) + 
-              "__" + str(variableValue4))
+              "__" + str(meterValue4) + 
+              "__" + str(variableValue5))
         
     return
 
