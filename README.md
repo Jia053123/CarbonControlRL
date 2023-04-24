@@ -7,6 +7,7 @@ To test the energyplus api 2.0 is accessalbe:
 python -c 'from pyenergyplus.api import EnergyPlusAPI; print(EnergyPlusAPI.api_version())'
 ``` 
 should output 2
+
 ============================================
 
 Use the DesignBuilder's example file: under floor heating example
