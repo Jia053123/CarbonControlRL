@@ -6,8 +6,9 @@ from gymnasium.spaces import Box
 import numpy as np
 from queue import Queue, Empty, Full
 import threading
+from EnergyPlusController import EnergyPlusRuntimeController
 
-iddPath = "C:/EnergyPlusV9-4-0/Energy+.idd" 
+# IDD_PATH = "C:/EnergyPlusV9-4-0/Energy+.idd" 
 # iddPath = "C:/EnergyPlusV9-5-0/Energy+.idd" 
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
@@ -20,7 +21,7 @@ idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 # idfPath = "C:/Users/Eppy/Documents/IDFs/US+MF+CZ4A+elecres+unheatedbsmt+IECC_2021.idf"
 
 # epwPath = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
-epwPath = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
 
 outputDir = os.path.dirname(idfPath)  + '/output'
 
@@ -215,6 +216,6 @@ runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_a
 runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
 
-exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', epwPath, idfPath])
+exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', EPW_PATH, idfPath])
 print("exit code (zero is success): " + str(exitCode))
 
