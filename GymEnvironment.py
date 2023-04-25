@@ -2,7 +2,7 @@ import os
 import gymnasium as gym
 from gymnasium.spaces import Box
 import numpy as np
-from queue import Queue, Empty, Full
+from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
 from ActionObservationManager import ActionObservationManager
 
@@ -14,8 +14,8 @@ class Environment(gym.Env):
     def __init__(self):
         self.energyPlusController: EnergyPlusRuntimeController = None
         self.actionObserverManager: ActionObservationManager = None
-        self.observation_queue: Queue = None
-        self.action_queue: Queue = None
+        self.observation_queue: QueueOfOne = None
+        self.action_queue: QueueOfOne = None
 
         self.episode = -1
         self.timestep = 0
@@ -34,8 +34,8 @@ class Environment(gym.Env):
         '''
         self.episode += 1
 
-        self.observation_queue = Queue(maxsize=1)
-        self.action_queue = Queue(maxsize=1)
+        self.observation_queue = QueueOfOne(timeoutForGet=5)
+        self.action_queue = QueueOfOne(timeoutForGet=5)
 
         if self.energyPlusController is not None:
             self.energyPlusController.stop()

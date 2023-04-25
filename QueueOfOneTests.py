@@ -19,6 +19,8 @@ class TestStringMethods(unittest.TestCase):
     
     def test_empty(self):
         q = QueueOfOne(timeoutForGet=1)
+        q.put(1)
+        self.assertEqual(q.get(), 1)
         with self.assertRaises(Empty):
             q.get()
         return

@@ -1,7 +1,11 @@
 from queue import Queue, Empty, Full
 
 class QueueOfOne():
-    def __init__(self, timeoutForGet=None):
+    def __init__(self, timeoutForGet=5):
+        '''
+        timeoutForGet specifies how many seconds to wait for get; 
+        if None then keep waiting until item is available
+        '''
         self.queue = Queue(maxsize=1)
         self.timeoutForGet = timeoutForGet
         return
