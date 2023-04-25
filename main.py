@@ -120,7 +120,7 @@ def send_actions(state):
 
         dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
         dataExchange.set_actuator_value(state, actuatorHandle2, 25.0)
-        dataExchange.set_actuator_value(state, actuatorHandle3, 30.0)
+        dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
     return
 
 runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)

@@ -17,8 +17,8 @@ class Environment(gym.Env):
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0, 0], high=np.array([50, 100]), dtype=np.float32))
 
-        # action space: Boiler Temperature: 20-90C; Heating Setpoint: 15-30C
-        self.action_space = Box(low=np.array([20, 15], high=np.array([90, 30]), dtype=np.float32))
+        # action space: Heating Setpoint: 15-30C
+        self.action_space = Box(low=np.array([15], high=np.array([30]), dtype=np.float32))
 
         # self.energyplus_runner: Optional[EnergyPlusRunner] = None
         self.observation_queue: Queue = None
@@ -27,7 +27,11 @@ class Environment(gym.Env):
         return
     
     def reset(self):
-        # initiate a new episode
+        '''
+        The reset method will be called to initiate a new episode. 
+        You may assume that the step method will not be called before reset has been called. 
+        Moreover, reset should be called whenever a done signal has been issued.
+        '''
         self.episode += 1
 
         # if the two threads coorporate correctly only a single entry is needed
@@ -47,7 +51,9 @@ class Environment(gym.Env):
         return observationList, info
     
     def step(self, action):
-        # compute the state of the environment after applying the action
+        '''
+        Compute the state of the environment after applying the action
+        '''
         self.timestep += 1
 
         timeout = 2
@@ -69,10 +75,14 @@ class Environment(gym.Env):
         return observationList, reward, terminated, done, info
     
     def render(self):
-        # render the graphs
+        '''
+        Render the graphs
+        '''
         return
     
     def close(self):
-        # close any open resources that were used by the environment
+        '''
+        Close any open resources that were used by the environment
+        '''
         return
     
