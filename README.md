@@ -1,3 +1,11 @@
+ To run unit tests for QueueOfOne: 
+
+ ```shell
+ python QueueOfOneTests.py
+ ```
+
+==============================================
+
 Make sure energyplus 9.4 is installed on computer (download from official site) 
 Make sure environmental variable PYTHONPATH has value C:\EnergyPlusV9-4-0
 
