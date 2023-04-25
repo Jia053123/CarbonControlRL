@@ -1,12 +1,12 @@
 Make sure energyplus 9.4 is installed on computer (download from official site) 
 Make sure environmental variable PYTHONPATH has value C:\EnergyPlusV9-4-0
 
-To test the energyplus api 2.0 is accessalbe: 
+To test the energyplus api is accessalbe: 
 
 ```shell
 python -c 'from pyenergyplus.api import EnergyPlusAPI; print(EnergyPlusAPI.api_version())'
 ``` 
-should output 2
+should output 0.2
 
 ============================================
 
