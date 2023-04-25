@@ -21,9 +21,9 @@ class Environment(gym.Env):
         self.timestep = 0
 
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
-        self.observation_space = Box(low=np.array([0, 0], high=np.array([50, 100]), dtype=np.float32))
+        self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 100]), dtype=np.float32)
         # action space: Heating Setpoint: 15-30C
-        self.action_space = Box(low=np.array([15], high=np.array([30]), dtype=np.float32))
+        self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
         return
     
     def reset(self):
@@ -34,7 +34,6 @@ class Environment(gym.Env):
         '''
         self.episode += 1
 
-        # if the two threads coorporate correctly only a single entry is needed
         self.observation_queue = Queue(maxsize=1)
         self.action_queue = Queue(maxsize=1)
 

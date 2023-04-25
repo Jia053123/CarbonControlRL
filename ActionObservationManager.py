@@ -8,11 +8,17 @@ class ActionObservationManager:
         self.dataExchange = dataExchange
         self.outputDir = outputDir
 
-    hasWrittenCSV = False
+        self.sensorHandles = np.repeat(-1, 5)
+        self.sensorValues = np.repeat(float('nan'), 5)
+        self.actuatorHandles = np.repeat(-1, 3)
+        self.actuatorValues = np.repeat(float('nan'), 3)
+
+        self.hasWrittenCSV = False
+        return
+
     def writeAvailableApiDataFile(self, state, run=True):
-        global hasWrittenCSV
         if run:
-            if hasWrittenCSV == False: 
+            if self.hasWrittenCSV == False: 
                 print("writing CSV...")
                 csvPath = os.path.join(self.outputDir, "availableApiData.csv")
                 try:
@@ -22,99 +28,84 @@ class ActionObservationManager:
                 csvData = self.dataExchange.list_available_api_data_csv(state)
                 with open(csvPath, 'wb') as temp_file:
                     temp_file.write(csvData)
-                hasWrittenCSV = True
+                self.hasWrittenCSV = True
+        return
 
     def printApiFlagIfRaised(self, state):
-            flag = self.dataExchange.api_error_flag(state)
-            if flag:
-                print("error flag raised")
+        flag = self.dataExchange.api_error_flag(state)
+        if flag:
+            print("error flag raised")
+        return
 
-    variableHandle1 = -1
-    variableHandle2 = -1
-    meterHandle3 = -1
-    meterHandle4 = -1
-    variableHandle5 = -1
     def collect_observations(self, state):
-        global variableHandle1
-        global variableHandle2
-        global meterHandle3
-        global meterHandle4
-        global variableHandle5
         if not self.dataExchange.api_data_fully_ready(state):
             return
-        self.writeAvailableApiDataFile(False) # Change to True to write the file in output folder
+        self.writeAvailableApiDataFile(state, False) # Change to True to write the file in output folder
         
         warmUpFlag = self.dataExchange.warmup_flag(state)
-
-        if variableHandle1<0 or variableHandle2<0 or meterHandle3<0 or meterHandle4<0 or variableHandle5<0: 
-            variableHandle1 = self.dataExchange.get_variable_handle(state, 
-                                                                    "Zone Mean Air Temperature", 
-                                                                    "BLOCK1:ZONE1")
-            variableHandle2 = self.dataExchange.get_variable_handle(state, 
-                                                                    "Site Outdoor Air Drybulb Temperature", 
-                                                                    "ENVIRONMENT")
-            meterHandle3 = self.dataExchange.get_meter_handle(state, 
-                                                              "Boiler:Heating:Electricity")
-            meterHandle4 = self.dataExchange.get_meter_handle(state, 
-                                                              "Pumps:Electricity")
-            variableHandle5 = self.dataExchange.get_variable_handle(state, 
-                                                                    "System Node Temperature", 
-                                                                    "BOILER WATER OUTLET NODE")
+ 
+        if -1 in self.sensorHandles:
+            self.sensorHandles[0] = self.dataExchange.get_variable_handle(state, 
+                                                                          "Zone Mean Air Temperature", 
+                                                                          "BLOCK1:ZONE1")
+            self.sensorHandles[1] = self.dataExchange.get_variable_handle(state, 
+                                                                          "Site Outdoor Air Drybulb Temperature", 
+                                                                          "ENVIRONMENT")
+            self.sensorHandles[2] = self.dataExchange.get_meter_handle(state, 
+                                                                       "Boiler:Heating:Electricity")
+            self.sensorHandles[3] = self.dataExchange.get_meter_handle(state, 
+                                                                       "Pumps:Electricity")
+            self.sensorHandles[4] = self.dataExchange.get_variable_handle(state, 
+                                                                          "System Node Temperature", 
+                                                                          "BOILER WATER OUTLET NODE")
         else: 
             hour = self.dataExchange.hour(state)
             minute = self.dataExchange.minutes(state)
 
-            variableValue1 = self.dataExchange.get_variable_value(state, variableHandle1) 
-            variableValue2 = self.dataExchange.get_variable_value(state, variableHandle2) 
-            meterValue3 = self.dataExchange.get_meter_value(state, meterHandle3) 
-            meterValue4 = self.dataExchange.get_meter_value(state, meterHandle4) 
-            variableValue5 = self.dataExchange.get_variable_value(state, variableHandle5) 
+            self.sensorValues[0] = self.dataExchange.get_variable_value(state, self.sensorHandles[0]) 
+            self.sensorValues[1] = self.dataExchange.get_variable_value(state, self.sensorHandles[1]) 
+            self.sensorValues[2] = self.dataExchange.get_meter_value(state, self.sensorHandles[2]) 
+            self.sensorValues[3] = self.dataExchange.get_meter_value(state, self.sensorHandles[3]) 
+            self.sensorValues[4] = self.dataExchange.get_variable_value(state, self.sensorHandles[4]) 
 
             print(str(hour) + 
                 ":" + str(minute) + 
-                "__" + str(variableValue1) + 
-                "__" + str(variableValue2) + 
-                "__" + str(meterValue3) + 
-                "__" + str(meterValue4) + 
-                "__" + str(variableValue5))
-            
-            
+                "__" + str(self.sensorValues[0]) + 
+                "__" + str(self.sensorValues[1]) + 
+                "__" + str(self.sensorValues[2]) + 
+                "__" + str(self.sensorValues[3]) + 
+                "__" + str(self.sensorValues[4]))
             
         return
 
-    actuatorHandle1 = -1
-    actuatorHandle2 = -1
-    actuatorHandle3 = -1
+
     def send_actions(self, state):
-        global actuatorHandle1
-        global actuatorHandle2
-        global actuatorHandle3
         if not self.dataExchange.api_data_fully_ready(state):
             return
-        if actuatorHandle1 < 0: 
-            actuatorHandle1 = self.dataExchange.get_actuator_handle(state, 
-                                                                    "Schedule:Compact", 
-                                                                    "Schedule Value", 
-                                                                    "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
-            actuatorHandle2 = self.dataExchange.get_actuator_handle(state, 
-                                                                    "Schedule:Compact", 
-                                                                    "Schedule Value", 
-                                                                    "BLOCK1:ZONE1 HEATING SETPOINT SCHEDULE")
-            actuatorHandle3 = self.dataExchange.get_actuator_handle(state, 
-                                                                    "Schedule:Compact", 
-                                                                    "Schedule Value", 
-                                                                    "BLOCK1:ZONE1 COOLING SETPOINT SCHEDULE")
+        if -1 in self.actuatorHandles: 
+            self.actuatorHandles[0] = self.dataExchange.get_actuator_handle(state, 
+                                                                            "Schedule:Compact", 
+                                                                            "Schedule Value", 
+                                                                            "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
+            self.actuatorHandles[1] = self.dataExchange.get_actuator_handle(state, 
+                                                                            "Schedule:Compact", 
+                                                                            "Schedule Value", 
+                                                                            "BLOCK1:ZONE1 HEATING SETPOINT SCHEDULE")
+            self.actuatorHandles[2] = self.dataExchange.get_actuator_handle(state, 
+                                                                            "Schedule:Compact", 
+                                                                            "Schedule Value", 
+                                                                            "BLOCK1:ZONE1 COOLING SETPOINT SCHEDULE")
         else:
             self.printApiFlagIfRaised(state)
             
-            actuatorValue1 = self.dataExchange.get_actuator_value(state, actuatorHandle1)
-            actuatorValue2 = self.dataExchange.get_actuator_value(state, actuatorHandle2)
-            actuatorValue3 = self.dataExchange.get_actuator_value(state, actuatorHandle3)
-            print("Set Point: " + str(actuatorValue1))
-            print("Set Point: " + str(actuatorValue2))
-            print("Set Point: " + str(actuatorValue3))
+            self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
+            self.actuatorValues[1] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[1])
+            self.actuatorValues[2] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[2])
+            print("Set Point: " + str(self.actuatorValues[0]))
+            print("Set Point: " + str(self.actuatorValues[1]))
+            print("Set Point: " + str(self.actuatorValues[2]))
 
-            self.dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
-            self.dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
-            self.dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 20.0)
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
         return
