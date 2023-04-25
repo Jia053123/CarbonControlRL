@@ -19,8 +19,15 @@ class TestStringMethods(unittest.TestCase):
     
     def test_empty(self):
         q = QueueOfOne(timeoutForGet=1)
+        with self.assertRaises(Empty):
+            q.get()
+        return
+
+    def test_integrated(self):
+        q = QueueOfOne(timeoutForGet=1)
         q.put(1)
-        self.assertEqual(q.get(), 1)
+        q.put(2)
+        self.assertEqual(q.get(), 2)
         with self.assertRaises(Empty):
             q.get()
         return
