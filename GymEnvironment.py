@@ -56,18 +56,18 @@ class Environment(gym.Env):
 
 
 
+        # # randomly generate the first past observation
+        # self.last_observation = self.observation_space.sample()
 
 
 
-        # randomly generate the first past observation
-        self.last_observation = self.observation_space.sample()
+        # try:
+        #     observation = self.obs_queue.get()
+        # except Empty:
+        #     observation = self.last_obs
 
-        try:
-            observation = self.obs_queue.get()
-        except Empty:
-            observation = self.last_obs
-
-        observationList = np.array(list(observation.values()))
+        # observationList = np.array(list(observation.values()))
+        observationList = {}
         info = {}
         return observationList, info
     
