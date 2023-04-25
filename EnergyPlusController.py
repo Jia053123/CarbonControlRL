@@ -1,13 +1,7 @@
-import sys
-import os
 from pyenergyplus.api import EnergyPlusAPI
 import numpy as np
 from queue import Queue, Empty, Full
 import threading
-
-IDF_PATH = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
 class EnergyPlusRuntimeController:
     def __init__(self, observation_queue: Queue, action_queue: Queue):
@@ -23,22 +17,23 @@ class EnergyPlusRuntimeController:
         self.exitCode = None
         # self.progress_value: int = 0
         return
+    
+    def createRuntime(self):
+        rt = self.energyplus_api.runtime
+        return rt
 
-    def start(self):
+    def start(self, runtime, idfPath, epwPath, outputDir):
+        self.runtime = runtime
         self.energyplus_state = self.energyplus_api.state_manager.new_state()
-        self.runtime = self.energyplus_api.runtime
 
         def _run_energyplus(runtime, state, exitCode):
             print("starting up EnergyPlus simulaiton")
-            exitCode = runtime.run_energyplus(state, ['-d', OUTPUT_DIR, '-w', EPW_PATH, IDF_PATH])
+            exitCode = runtime.run_energyplus(state, ['-d', outputDir, '-w', epwPath, idfPath])
+            return
         
         self.energyplus_exec_thread = threading.Thread(
             target=_run_energyplus,
-            args=(
-                self.runtime,
-                self.energyplus_state,
-                self.exitCode
-            )
+            args=(self.runtime, self.energyplus_state, self.exitCode)
         )
         self.energyplus_exec_thread.start()
         return
@@ -49,3 +44,4 @@ class EnergyPlusRuntimeController:
             self.energyplus_exec_thread = None
         self.energyplus_api.runtime.clear_callbacks()
         self.energyplus_api.state_manager.delete_state(self.energyplus_state)
+        return

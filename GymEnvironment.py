@@ -1,11 +1,15 @@
+import os
 import gymnasium as gym
 from gymnasium.spaces import Box
 import numpy as np
 from queue import Queue, Empty, Full
 from EnergyPlusController import EnergyPlusRuntimeController
 
+IDF_PATH = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
-class EnergyPlusEnv(gym.Env):
+class Environment(gym.Env):
     def __init__(self):
         self.episode = -1
         self.timestep = 0
