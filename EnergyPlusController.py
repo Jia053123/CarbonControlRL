@@ -1,8 +1,6 @@
 import sys
 import os
 from pyenergyplus.api import EnergyPlusAPI
-import gymnasium as gym
-from gymnasium.spaces import Box
 import numpy as np
 from queue import Queue, Empty, Full
 import threading
