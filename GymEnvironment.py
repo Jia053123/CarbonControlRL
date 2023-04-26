@@ -34,8 +34,8 @@ class Environment(gym.Env):
         '''
         self.episode += 1
 
-        self.observation_queue = QueueOfOne(timeoutForGet=5)
-        self.action_queue = QueueOfOne(timeoutForGet=5)
+        self.observation_queue = QueueOfOne(timeout=5)
+        self.action_queue = QueueOfOne(timeout=5)
 
         if self.energyPlusController is not None:
             self.energyPlusController.stop()
@@ -68,7 +68,9 @@ class Environment(gym.Env):
         '''
         self.timestep += 1
 
-        timeout = 2
+
+        # if the last action has not been taken, make sure that is taken first
+        self.action_queue.put_wait(action)
         try:
             self.action_queue.put_overwrite(action, timeout=timeout)
             self.last_observation = observation = self.observation_queue.get_wait(timeout=timeout)
