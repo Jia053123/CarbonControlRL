@@ -16,6 +16,9 @@ python -c 'from pyenergyplus.api import EnergyPlusAPI; print(EnergyPlusAPI.api_v
 ``` 
 should output 0.2
 
+Install Stable Baselines 3:
+https://stable-baselines3.readthedocs.io/en/master/guide/install.html
+
 ============================================
 
 Use the DesignBuilder's example file: under floor heating example

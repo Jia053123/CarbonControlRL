@@ -1,6 +1,7 @@
 import os
 import gymnasium as gym
-from gymnasium.spaces import Box
+# from gymnasium import spaces
+from gym.spaces.box import Box
 import numpy as np
 from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
