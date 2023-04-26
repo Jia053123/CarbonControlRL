@@ -1,7 +1,7 @@
- To run unit tests for QueueOfOne: 
+ To run unit tests: 
 
  ```shell
- python QueueOfOneTests.py
+ python UnitTests.py
  ```
 
 ==============================================
