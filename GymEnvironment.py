@@ -5,6 +5,7 @@ import numpy as np
 from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
 from ActionObservationManager import ActionObservationManager
+from queue import Empty, Full
 
 IDF_PATH = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
@@ -17,11 +18,13 @@ class Environment(gym.Env):
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
 
+        self.observation = None
+
         self.episode = -1
         self.timestep = 0
 
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
-        self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 100]), dtype=np.float32)
+        self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
         # action space: Heating Setpoint: 15-30C
         self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
         return
@@ -58,9 +61,9 @@ class Environment(gym.Env):
         # self.last_observation = self.observation_space.sample()
 
 
-        observationList = self.observation_queue.get_wait()
+        self.observation = self.observation_queue.get_wait()
         info = {}
-        return observationList, info
+        return self.observation, info
     
     def step(self, action):
         '''
@@ -68,25 +71,24 @@ class Environment(gym.Env):
         '''
         self.timestep += 1
 
-
-        # if the last action has not been taken, make sure that is taken first
-        self.action_queue.put_wait(action)
         try:
-            self.action_queue.put_overwrite(action, timeout=timeout)
-            self.last_observation = observation = self.observation_queue.get_wait(timeout=timeout)
+            # if the last action has not been taken, make sure that is taken first
+            self.action_queue.put_wait(action)
+            # self.last_observation = 
+            self.observation = self.observation_queue.get_wait()
         except (Full, Empty):
             terminated = True
-            observation = self.last_observation
+            # observation = self.last_observation
 
-        observationList = np.array(list(observation.values()))
+        # observationList = np.array(list(observation.values()))
 
-        reward = -1 * observationList[1]
-        if observationList[0] < 20:
+        reward = -1 * self.observation[1]
+        if self.observation[0] < 20:
             reward -= 1000
 
         done = False
         info = {}
-        return observationList, reward, terminated, done, info
+        return self.observation, reward, terminated, done, info
     
     def render(self):
         '''
@@ -98,5 +100,6 @@ class Environment(gym.Env):
         '''
         Close any open resources that were used by the environment
         '''
+        self.energyPlusController.stop()
         return
     
