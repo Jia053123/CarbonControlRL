@@ -10,7 +10,7 @@ class QueueOfOne():
         self.timeoutForGet = timeoutForGet
         return
     
-    def put(self, item):
+    def put_overwrite(self, item):
         '''
         Put item into the container. Overwrite if the container is full. 
         '''
@@ -21,7 +21,7 @@ class QueueOfOne():
             self.queue.put_nowait(item)
         return
 
-    def get(self):
+    def get_wait(self):
         '''
         Remove and return an item from the queue. 
         Block if necessary until an item is available or until timeout is up, in which case Empty exception is raised. 

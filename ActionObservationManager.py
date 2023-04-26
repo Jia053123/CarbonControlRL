@@ -1,12 +1,15 @@
 import os
 import numpy as np
 from pyenergyplus.api import EnergyPlusAPI
-from queue import Queue, Empty, Full
+from QueueOfOne import QueueOfOne
 
 class ActionObservationManager: 
-    def __init__(self, dataExchange, actionQueue: Queue, observationQueue:Queue, outputDir):
+    def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, outputDir):
         self.dataExchange = dataExchange
         self.outputDir = outputDir
+
+        self.actionQueue: QueueOfOne = actionQueue
+        self.observationQueue: QueueOfOne = observationQueue
 
         self.sensorHandles = np.repeat(-1, 5)
         self.sensorValues = np.repeat(float('nan'), 5)
@@ -76,6 +79,9 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[3]) + 
                 "__" + str(self.sensorValues[4]))
             
+            observation = np.array([self.sensorValues[0]])
+            # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
+            self.observationQueue.put_overwrite(observation)
         return
 
 
@@ -105,7 +111,10 @@ class ActionObservationManager:
             print("Set Point: " + str(self.actuatorValues[1]))
             print("Set Point: " + str(self.actuatorValues[2]))
 
+            # wait until the values are available
+            actuatorValuesToSet = self.actionQueue.get_wait()
+
             self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-            self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 20.0)
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actuatorValuesToSet[0])
             self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
         return

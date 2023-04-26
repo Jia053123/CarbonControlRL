@@ -54,19 +54,11 @@ class Environment(gym.Env):
         self.energyPlusController.start(runtime, IDF_PATH, EPW_PATH, OUTPUT_DIR)
 
 
-
         # # randomly generate the first past observation
         # self.last_observation = self.observation_space.sample()
 
 
-
-        # try:
-        #     observation = self.obs_queue.get()
-        # except Empty:
-        #     observation = self.last_obs
-
-        # observationList = np.array(list(observation.values()))
-        observationList = {}
+        observationList = self.observation_queue.get_wait()
         info = {}
         return observationList, info
     
@@ -78,8 +70,8 @@ class Environment(gym.Env):
 
         timeout = 2
         try:
-            self.action_queue.put(action, timeout=timeout)
-            self.last_observation = observation = self.observation_queue.get(timeout=timeout)
+            self.action_queue.put_overwrite(action, timeout=timeout)
+            self.last_observation = observation = self.observation_queue.get_wait(timeout=timeout)
         except (Full, Empty):
             terminated = True
             observation = self.last_observation
