@@ -17,6 +17,8 @@ class ActionObservationManager:
         self.actuatorValues = np.repeat(float('nan'), 3)
 
         self.hasWrittenCSV = False
+
+        self.warmUpFlag = True
         return
 
     def writeAvailableApiDataFile(self, state, run=True):
@@ -41,26 +43,26 @@ class ActionObservationManager:
         return
 
     def collect_observations(self, state):
+        self.warmUpFlag = self.dataExchange.warmup_flag(state)
+        
         if not self.dataExchange.api_data_fully_ready(state):
             return
         self.writeAvailableApiDataFile(state, False) # Change to True to write the file in output folder
-        
-        warmUpFlag = self.dataExchange.warmup_flag(state)
  
         if -1 in self.sensorHandles:
             self.sensorHandles[0] = self.dataExchange.get_variable_handle(state, 
-                                                                          "Zone Mean Air Temperature", 
-                                                                          "BLOCK1:ZONE1")
+                                                                        "Zone Mean Air Temperature", 
+                                                                        "BLOCK1:ZONE1")
             self.sensorHandles[1] = self.dataExchange.get_variable_handle(state, 
-                                                                          "Site Outdoor Air Drybulb Temperature", 
-                                                                          "ENVIRONMENT")
+                                                                        "Site Outdoor Air Drybulb Temperature", 
+                                                                        "ENVIRONMENT")
             self.sensorHandles[2] = self.dataExchange.get_meter_handle(state, 
-                                                                       "Boiler:Heating:Electricity")
+                                                                    "Boiler:Heating:Electricity")
             self.sensorHandles[3] = self.dataExchange.get_meter_handle(state, 
-                                                                       "Pumps:Electricity")
+                                                                    "Pumps:Electricity")
             self.sensorHandles[4] = self.dataExchange.get_variable_handle(state, 
-                                                                          "System Node Temperature", 
-                                                                          "BOILER WATER OUTLET NODE")
+                                                                        "System Node Temperature", 
+                                                                        "BOILER WATER OUTLET NODE")
         else: 
             hour = self.dataExchange.hour(state)
             minute = self.dataExchange.minutes(state)
@@ -86,6 +88,9 @@ class ActionObservationManager:
 
 
     def send_actions(self, state):
+        self.warmUpFlag = self.dataExchange.warmup_flag(state)
+        if self.warmUpFlag:
+            return
         if not self.dataExchange.api_data_fully_ready(state):
             return
         if -1 in self.actuatorHandles: 

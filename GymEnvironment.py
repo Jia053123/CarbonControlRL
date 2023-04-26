@@ -61,8 +61,11 @@ class Environment(gym.Env):
         # # randomly generate the first past observation
         # self.last_observation = self.observation_space.sample()
 
-
+        print("waiting for observation")
+        while self.actionObserverManager.warmUpFlag:
+            pass
         self.observation = self.observation_queue.get_wait()
+        print(self.observation)
         info = {}
         return self.observation, info
     
