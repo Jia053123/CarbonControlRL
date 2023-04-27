@@ -16,24 +16,7 @@ class ActionObservationManager:
         self.actuatorHandles = np.repeat(-1, 3)
         self.actuatorValues = np.repeat(float('nan'), 3)
 
-        self.hasWrittenCSV = False
-
         self.warmUpFlag = True
-        return
-
-    def writeAvailableApiDataFile(self, state, run=True):
-        if run:
-            if self.hasWrittenCSV == False: 
-                print("writing CSV...")
-                csvPath = os.path.join(self.outputDir, "availableApiData.csv")
-                try:
-                    os.remove(csvPath)
-                except OSError:
-                    pass
-                csvData = self.dataExchange.list_available_api_data_csv(state)
-                with open(csvPath, 'wb') as temp_file:
-                    temp_file.write(csvData)
-                self.hasWrittenCSV = True
         return
 
     def printApiFlagIfRaised(self, state):
@@ -47,7 +30,6 @@ class ActionObservationManager:
         
         if not self.dataExchange.api_data_fully_ready(state):
             return
-        self.writeAvailableApiDataFile(state, False) # Change to True to write the file in output folder
  
         if -1 in self.sensorHandles:
             self.sensorHandles[0] = self.dataExchange.get_variable_handle(state, 
@@ -81,7 +63,7 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[3]) + 
                 "__" + str(self.sensorValues[4]))
             
-            observation = np.array([self.sensorValues[0]])
+            observation = [self.sensorValues[0]]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
         return

@@ -65,9 +65,10 @@ class Environment(gym.Env):
         while self.actionObserverManager.warmUpFlag:
             pass
         self.observation = self.observation_queue.get_wait()
+        print("finish reset!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(self.observation)
-        info = {}
-        return self.observation, info
+        # info = {}
+        return self.observation
     
     def step(self, action):
         '''
@@ -81,18 +82,20 @@ class Environment(gym.Env):
             # self.last_observation = 
             self.observation = self.observation_queue.get_wait()
         except (Full, Empty):
-            terminated = True
+            # terminated = True
+            print("done = True !!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            done = True
             # observation = self.last_observation
 
         # observationList = np.array(list(observation.values()))
 
-        reward = -1 * self.observation[1]
+        reward = -1 * self.observation[0]
         if self.observation[0] < 20:
             reward -= 1000
 
         done = False
         info = {}
-        return self.observation, reward, terminated, done, info
+        return self.observation, reward, done, info
     
     def render(self):
         '''
@@ -106,4 +109,5 @@ class Environment(gym.Env):
         '''
         self.energyPlusController.stop()
         return
+
     
