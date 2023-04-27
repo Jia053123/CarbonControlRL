@@ -20,6 +20,7 @@ class Environment(gym.Env):
         self.action_queue: QueueOfOne = None
 
         self.observation = None
+        self.terminated = False
 
         self.episode = -1
         self.timestep = 0
@@ -36,6 +37,7 @@ class Environment(gym.Env):
         You may assume that the step method will not be called before reset has been called. 
         Moreover, reset should be called whenever a done signal has been issued.
         '''
+        print("resetting!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         self.episode += 1
 
         self.observation_queue = QueueOfOne(timeout=5)
@@ -58,7 +60,6 @@ class Environment(gym.Env):
         self.energyPlusController.start(runtime, IDF_PATH, EPW_PATH, OUTPUT_DIR)
 
 
-        # # randomly generate the first past observation
         # self.last_observation = self.observation_space.sample()
 
         print("waiting for observation")
@@ -67,7 +68,6 @@ class Environment(gym.Env):
         self.observation = self.observation_queue.get_wait()
         print("finish reset!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(self.observation)
-        # info = {}
         return self.observation
     
     def step(self, action):
@@ -82,20 +82,17 @@ class Environment(gym.Env):
             # self.last_observation = 
             self.observation = self.observation_queue.get_wait()
         except (Full, Empty):
-            # terminated = True
-            print("done = True !!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            done = True
+            self.terminated = True
+            print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!")
             # observation = self.last_observation
 
-        # observationList = np.array(list(observation.values()))
 
         reward = -1 * self.observation[0]
         if self.observation[0] < 20:
             reward -= 1000
 
-        done = False
         info = {}
-        return self.observation, reward, done, info
+        return self.observation, reward, self.terminated, info
     
     def render(self):
         '''

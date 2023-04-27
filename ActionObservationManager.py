@@ -45,7 +45,7 @@ class ActionObservationManager:
             self.sensorHandles[4] = self.dataExchange.get_variable_handle(state, 
                                                                         "System Node Temperature", 
                                                                         "BOILER WATER OUTLET NODE")
-        else: 
+        if -1 not in self.sensorHandles:
             hour = self.dataExchange.hour(state)
             minute = self.dataExchange.minutes(state)
 
