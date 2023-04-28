@@ -101,11 +101,18 @@ class ActionObservationManager:
 
             try: 
                 # wait until the values are available
-                actuatorValuesToSet = self.actionQueue.get_wait()
+                actionChosen = self.actionQueue.get_wait()
+                print(actionChosen)
+                match actionChosen: 
+                    case 0:
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
+                    case 1:
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
 
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actuatorValuesToSet[0])
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
             except Empty:
                 print("actuatorValuesToSet = self.actionQueue.get_wait() raises Empty exception")
         return

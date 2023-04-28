@@ -2,6 +2,7 @@ import os
 import gymnasium as gym
 # from gymnasium import spaces
 from gym.spaces.box import Box
+from gym.spaces.discrete import Discrete
 import numpy as np
 from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
@@ -26,8 +27,9 @@ class Environment(gym.Env):
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
         # action space: Heating Setpoint: 15-30C
-        self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
-        
+        # self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
+        self.action_space = Discrete(2) #{0, 1} 
+
         super().__init__()
         return
     
@@ -93,8 +95,8 @@ class Environment(gym.Env):
 
 
         reward = -1 * self.observation[0]
-        if self.observation[0] < 20:
-            reward -= 1000
+        # if self.observation[0] < 20:
+        #     reward -= 1000
 
         info = {}
         return self.observation, reward, self.terminated, info
