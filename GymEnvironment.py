@@ -45,7 +45,7 @@ class Environment(gym.Env):
         print("resetting===================================================")
 
         self.episode += 1
-        print(self.episode)
+        print("episode: " + str(self.episode))
 
         if self.energyPlusController is not None:
             self.energyPlusController.stop()
