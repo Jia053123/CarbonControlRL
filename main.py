@@ -10,7 +10,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 
 environment = Environment()
 model = PPO(MlpPolicy, environment, verbose=2)
-model.learn(total_timesteps=10_000)
+model.learn(total_timesteps=100000)
 
 # evalEnvironment = Environment()
 # mean_reward, std_reward = evaluate_policy(model, evalEnvironment, n_eval_episodes=100)

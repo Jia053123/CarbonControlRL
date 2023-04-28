@@ -2,7 +2,6 @@ import os
 import numpy as np
 from pyenergyplus.api import EnergyPlusAPI
 from QueueOfOne import QueueOfOne
-from queue import Empty, Full
 
 class ActionObservationManager: 
     def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, outputDir):
@@ -100,12 +99,9 @@ class ActionObservationManager:
             print("Set Point: " + str(self.actuatorValues[2]))
 
             # wait until the values are available
-            try:
-                actuatorValuesToSet = self.actionQueue.get_wait()
-                
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actuatorValuesToSet[0])
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
-            except Empty:
-                print("actuatorValuesToSet = self.actionQueue.get_wait() throwing Empty")
+            actuatorValuesToSet = self.actionQueue.get_wait()
+
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actuatorValuesToSet[0])
+            self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
         return
