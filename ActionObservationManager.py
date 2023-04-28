@@ -102,7 +102,7 @@ class ActionObservationManager:
             try: 
                 # wait until the values are available
                 actionChosen = self.actionQueue.get_wait()
-                print(actionChosen)
+                # print(actionChosen)
                 match actionChosen: 
                     case 0:
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)

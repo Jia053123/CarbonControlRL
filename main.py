@@ -13,16 +13,14 @@ SAVE_PATH = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
 
 
 environment = Environment()
-model = DQN("MlpPolicy", environment, verbose=2)
-model.learn(total_timesteps=16384) #100000)
+model = PPO("MlpPolicy", environment, verbose=2)#, target_update_interval=250)
+model.learn(total_timesteps=16384) 
 
 print("done learning **********************************************")
 model.save(SAVE_PATH)
 print("model saved *****************************************")
 
-# environment.close()
-# print("testing model ************************************************")
-
-# evalEnvironment = Environment()
-# mean_reward, std_reward = evaluate_policy(model, evalEnvironment, n_eval_episodes=100)
-# print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
+evalEnvironment = Environment()
+mean_reward, std_reward = evaluate_policy(model, evalEnvironment, n_eval_episodes=1)
+print("finish evaluation ****************************************")
+print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
