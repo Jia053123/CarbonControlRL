@@ -21,6 +21,9 @@ class Environment(gym.Env):
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
 
+        self.observation = None
+        self.terminated = False
+
         self.episode = -1
         self.timestep = 0
 
@@ -47,33 +50,32 @@ class Environment(gym.Env):
         if self.energyPlusController is not None:
             self.energyPlusController.stop()
 
-        self.observation = None
-        self.terminated = False
+        if not self.terminated: 
+            self.observation_queue = QueueOfOne(timeout=5)
+            self.action_queue = QueueOfOne(timeout=5)
 
-        self.observation_queue = QueueOfOne(timeout=5)
-        self.action_queue = QueueOfOne(timeout=5)
+            self.energyPlusController = EnergyPlusRuntimeController(self.observation_queue, self.action_queue)
+            self.actionObserverManager = ActionObservationManager(self.energyPlusController.dataExchange, 
+                                                                self.action_queue, 
+                                                                self.observation_queue, 
+                                                                OUTPUT_DIR)
+            
+            runtime = self.energyPlusController.createRuntime()
+            runtime.callback_begin_system_timestep_before_predictor(self.energyPlusController.energyplus_state, 
+                                                                    self.actionObserverManager.send_actions)
+            runtime.callback_end_zone_timestep_after_zone_reporting(self.energyPlusController.energyplus_state, 
+                                                                    self.actionObserverManager.collect_observations)
 
-        self.energyPlusController = EnergyPlusRuntimeController(self.observation_queue, self.action_queue)
-        self.actionObserverManager = ActionObservationManager(self.energyPlusController.dataExchange, 
-                                                              self.action_queue, 
-                                                              self.observation_queue, 
-                                                              OUTPUT_DIR)
-        
-        runtime = self.energyPlusController.createRuntime()
-        runtime.callback_begin_system_timestep_before_predictor(self.energyPlusController.energyplus_state, 
-                                                                self.actionObserverManager.send_actions)
-        runtime.callback_end_zone_timestep_after_zone_reporting(self.energyPlusController.energyplus_state, 
-                                                                self.actionObserverManager.collect_observations)
-
-        self.energyPlusController.start(runtime, IDF_PATH, EPW_PATH, OUTPUT_DIR)
+            self.energyPlusController.start(runtime, IDF_PATH, EPW_PATH, OUTPUT_DIR)
 
 
-        # self.last_observation = self.observation_space.sample()
+            # self.last_observation = self.observation_space.sample()
 
-        print("waiting for observation")
-        while self.actionObserverManager.warmUpFlag:
-            pass
-        self.observation = self.observation_queue.get_wait()
+            print("waiting for observation")
+            while self.actionObserverManager.warmUpFlag:
+                pass
+            self.observation = self.observation_queue.get_wait()
+            
         print("finish reset========================================================")
         return self.observation
     
