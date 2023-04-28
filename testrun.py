@@ -1,8 +1,5 @@
 import os
 from pyenergyplus.api import EnergyPlusAPI
-import numpy as np
-from EnergyPlusController import EnergyPlusRuntimeController
-from GymEnvironment import Environment
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
