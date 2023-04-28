@@ -11,7 +11,7 @@ from stable_baselines3 import SAC # much, much slower then PPO (multiple actors)
 SAVE_PATH = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
 
 environment = Environment()
-model = SAC("MlpPolicy", environment, verbose=2, gamma=1.0) # gamma: discount factor
+model = PPO("MlpPolicy", environment, verbose=2, gamma=1.0) # gamma: discount factor
 model.learn(total_timesteps=16384) 
 
 print("done learning ***************************************")
