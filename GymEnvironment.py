@@ -27,8 +27,8 @@ class Environment(gym.Env):
         self.episode = -1
         self.timestep = 0
 
-        # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
-        self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
+        # observation space (upper bound not included!!): Zone Mean Air Temp: 0-50C; hour of the day; Electricity for heating: 0-100 * 10000000
+        self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 24]), dtype=np.float32)
         # action space: Heating Setpoint: choosing between two options
         # self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
         self.action_space = Discrete(2) #{0, 1} 
