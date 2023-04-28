@@ -101,22 +101,22 @@ class ActionObservationManager:
 
             try: 
                 # wait until the values are available
-                actionChosen = self.actionQueue.get_wait()[0]
-                print(actionChosen)
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actionChosen)
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
-                # match int(actionChosen): 
-                #     case 0:
-                #         print("setpoint: 15")
-                #         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-                #         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
-                #         self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
-                #     case 1:
-                #         print("setpoint: 25")
-                #         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-                #         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
-                #         self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
+                actionChosen = self.actionQueue.get_wait()#[0]
+                # print(actionChosen)
+                # self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+                # self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actionChosen)
+                # self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
+                match int(actionChosen): 
+                    case 0:
+                        print("setpoint: 15")
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
+                    case 1:
+                        print("setpoint: 25")
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
+                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
 
             except Empty:
                 print("actuatorValuesToSet = self.actionQueue.get_wait() raises Empty exception")

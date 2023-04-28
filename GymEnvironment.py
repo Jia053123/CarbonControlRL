@@ -30,8 +30,8 @@ class Environment(gym.Env):
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
         # action space: Heating Setpoint: choosing between two options
-        self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
-        # self.action_space = Discrete(2) #{0, 1} 
+        # self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
+        self.action_space = Discrete(2) #{0, 1} 
 
         super().__init__()
         return
