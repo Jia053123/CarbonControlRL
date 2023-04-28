@@ -1,8 +1,8 @@
 import os
 import gymnasium as gym
 # from gymnasium import spaces
-from gym.spaces.box import Box
-from gym.spaces.discrete import Discrete
+from gymnasium.spaces.box import Box
+from gymnasium.spaces.discrete import Discrete
 import numpy as np
 from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
@@ -30,8 +30,8 @@ class Environment(gym.Env):
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
         # action space: Heating Setpoint: choosing between two options
-        # self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
-        self.action_space = Discrete(2) #{0, 1} 
+        self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
+        # self.action_space = Discrete(2) #{0, 1} 
 
         super().__init__()
         return
@@ -74,7 +74,9 @@ class Environment(gym.Env):
             self.observation = self.observation_queue.get_wait()
             
         print("finish reset========================================================")
-        return self.observation
+        print(self.observation)
+        info = {}
+        return self.observation, info
     
     def step(self, action):
         '''
@@ -96,7 +98,7 @@ class Environment(gym.Env):
         #     reward -= 1000
 
         info = {}
-        return self.observation, reward, self.terminated, info
+        return self.observation, reward, self.terminated, False, info
     
     def render(self):
         '''
