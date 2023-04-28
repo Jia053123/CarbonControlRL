@@ -2,6 +2,7 @@ import os
 import numpy as np
 from pyenergyplus.api import EnergyPlusAPI
 from QueueOfOne import QueueOfOne
+from queue import Empty, Full
 
 class ActionObservationManager: 
     def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, outputDir):
@@ -55,13 +56,13 @@ class ActionObservationManager:
             self.sensorValues[3] = self.dataExchange.get_meter_value(state, self.sensorHandles[3]) 
             self.sensorValues[4] = self.dataExchange.get_variable_value(state, self.sensorHandles[4]) 
 
-            print(str(hour) + 
-                ":" + str(minute) + 
-                "__" + str(self.sensorValues[0]) + 
-                "__" + str(self.sensorValues[1]) + 
-                "__" + str(self.sensorValues[2]) + 
-                "__" + str(self.sensorValues[3]) + 
-                "__" + str(self.sensorValues[4]))
+            # print(str(hour) + 
+            #     ":" + str(minute) + 
+            #     "__" + str(self.sensorValues[0]) + 
+            #     "__" + str(self.sensorValues[1]) + 
+            #     "__" + str(self.sensorValues[2]) + 
+            #     "__" + str(self.sensorValues[3]) + 
+            #     "__" + str(self.sensorValues[4]))
             
             observation = [self.sensorValues[0]]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
@@ -94,14 +95,17 @@ class ActionObservationManager:
             self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
             self.actuatorValues[1] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[1])
             self.actuatorValues[2] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[2])
-            print("Set Point: " + str(self.actuatorValues[0]))
-            print("Set Point: " + str(self.actuatorValues[1]))
-            print("Set Point: " + str(self.actuatorValues[2]))
+            # print("Set Point: " + str(self.actuatorValues[0]))
+            # print("Set Point: " + str(self.actuatorValues[1]))
+            # print("Set Point: " + str(self.actuatorValues[2]))
 
-            # wait until the values are available
-            actuatorValuesToSet = self.actionQueue.get_wait()
+            try: 
+                # wait until the values are available
+                actuatorValuesToSet = self.actionQueue.get_wait()
 
-            self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-            self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actuatorValuesToSet[0])
-            self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actuatorValuesToSet[0])
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
+            except Empty:
+                print("actuatorValuesToSet = self.actionQueue.get_wait() raises Empty exception")
         return

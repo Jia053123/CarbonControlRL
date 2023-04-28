@@ -27,6 +27,8 @@ class Environment(gym.Env):
         self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
         # action space: Heating Setpoint: 15-30C
         self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
+        
+        super().__init__()
         return
     
     def reset(self):
@@ -38,6 +40,7 @@ class Environment(gym.Env):
         print("resetting===================================================")
 
         self.episode += 1
+        print(self.episode)
 
         if self.energyPlusController is not None:
             self.energyPlusController.stop()
