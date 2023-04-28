@@ -9,9 +9,9 @@ from stable_baselines3.ppo import MlpPolicy
 from stable_baselines3.common.evaluation import evaluate_policy
 
 SAVE_PATH = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
-model = DQN.load(SAVE_PATH)
+modelToEval = DQN.load(SAVE_PATH)
 
 evalEnvironment = Environment()
-mean_reward, std_reward = evaluate_policy(model, evalEnvironment, n_eval_episodes=1)
+mean_reward, std_reward = evaluate_policy(modelToEval, evalEnvironment, n_eval_episodes=1)
 print("finish evaluation ****************************************")
 print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")

@@ -103,12 +103,14 @@ class ActionObservationManager:
                 # wait until the values are available
                 actionChosen = self.actionQueue.get_wait()
                 # print(actionChosen)
-                match actionChosen: 
+                match int(actionChosen): 
                     case 0:
+                        print("15")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
                     case 1:
+                        print("0025")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
