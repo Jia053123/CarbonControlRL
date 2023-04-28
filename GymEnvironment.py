@@ -29,7 +29,7 @@ class Environment(gym.Env):
 
         # observation space: Zone Mean Air Temp: 0-50C; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0]), high=np.array([50]), dtype=np.float32)
-        # action space: Heating Setpoint: 15-30C
+        # action space: Heating Setpoint: choosing between two options
         # self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
         self.action_space = Discrete(2) #{0, 1} 
 
@@ -68,9 +68,6 @@ class Environment(gym.Env):
 
             self.energyPlusController.start(runtime, IDF_PATH, EPW_PATH, OUTPUT_DIR)
 
-
-            # self.last_observation = self.observation_space.sample()
-
             print("waiting for observation")
             while self.actionObserverManager.warmUpFlag:
                 pass
@@ -88,12 +85,10 @@ class Environment(gym.Env):
         try:
             # if the last action has not been taken, make sure that is taken first
             self.action_queue.put_wait(action)
-            # self.last_observation = 
             self.observation = self.observation_queue.get_wait()
         except (Full, Empty):
             self.terminated = True
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # observation = self.last_observation
 
 
         reward = -1 * self.observation[0]
@@ -113,7 +108,7 @@ class Environment(gym.Env):
         '''
         Close any open resources that were used by the environment
         '''
-        print("closing+++++++++++++++++++++++++++++++++")
+        print("closing environment +++++++++++++++++++++++++++++++++")
         self.energyPlusController.stop()
         return
 

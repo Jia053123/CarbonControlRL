@@ -13,5 +13,5 @@ modelToEval = DQN.load(SAVE_PATH)
 
 evalEnvironment = Environment()
 mean_reward, std_reward = evaluate_policy(modelToEval, evalEnvironment, n_eval_episodes=1)
-print("finish evaluation ****************************************")
+print("evaluation complete ****************************************")
 print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
