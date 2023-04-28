@@ -14,13 +14,11 @@ OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
 class Environment(gym.Env):
     def __init__(self):
+        print("init+++++++++++++++++++++++++++++++++++++")
         self.energyPlusController: EnergyPlusRuntimeController = None
         self.actionObserverManager: ActionObservationManager = None
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
-
-        self.observation = None
-        self.terminated = False
 
         self.episode = -1
         self.timestep = 0
@@ -37,14 +35,19 @@ class Environment(gym.Env):
         You may assume that the step method will not be called before reset has been called. 
         Moreover, reset should be called whenever a done signal has been issued.
         '''
-        print("resetting!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("resetting===================================================")
+
         self.episode += 1
+
+        if self.energyPlusController is not None:
+            self.energyPlusController.stop()
+
+        self.observation = None
+        self.terminated = False
 
         self.observation_queue = QueueOfOne(timeout=5)
         self.action_queue = QueueOfOne(timeout=5)
 
-        if self.energyPlusController is not None:
-            self.energyPlusController.stop()
         self.energyPlusController = EnergyPlusRuntimeController(self.observation_queue, self.action_queue)
         self.actionObserverManager = ActionObservationManager(self.energyPlusController.dataExchange, 
                                                               self.action_queue, 
@@ -66,8 +69,7 @@ class Environment(gym.Env):
         while self.actionObserverManager.warmUpFlag:
             pass
         self.observation = self.observation_queue.get_wait()
-        print("finish reset!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print(self.observation)
+        print("finish reset========================================================")
         return self.observation
     
     def step(self, action):
@@ -83,7 +85,7 @@ class Environment(gym.Env):
             self.observation = self.observation_queue.get_wait()
         except (Full, Empty):
             self.terminated = True
-            print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             # observation = self.last_observation
 
 
@@ -104,6 +106,7 @@ class Environment(gym.Env):
         '''
         Close any open resources that were used by the environment
         '''
+        print("closing+++++++++++++++++++++++++++++++++")
         self.energyPlusController.stop()
         return
 
