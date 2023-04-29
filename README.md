@@ -30,11 +30,15 @@ Make sure energy plus 9.4 is selected in tools -> program options
 
 Modify the design builder file as needed
 
+Places to insert custom schedule: 
+	1. Building -> HVAC tab on top -> Heating -> Operation -> Schedule -> turn on for only weekdays
+	2. HW Loop Setpoint Manager -> Edit Component on right panel -> Schedule -> Setpoint variable schedule
+
 File -> export -> energy plus -> simulation
 
 In export options: 
 	A lot of options to choose from! 
-	In Output tab, Miscellaneous, check EDD/RDD file if needed (slightly slows down the simulation) 
+	In Output tab, Miscellaneous, check EDD/RDD file if using EMS (slightly slows down the simulation) 
 
 ==========================================
 
