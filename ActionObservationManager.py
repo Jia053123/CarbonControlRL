@@ -64,7 +64,7 @@ class ActionObservationManager:
             #     "__" + str(self.sensorValues[3]) + 
             #     "__" + str(self.sensorValues[4]))
             
-            observation = [self.sensorValues[0], hour]
+            observation = [self.sensorValues[2], hour]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
         return

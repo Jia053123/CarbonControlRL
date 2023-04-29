@@ -1,8 +1,10 @@
 import os
 from pyenergyplus.api import EnergyPlusAPI
 
-idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
+# idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
+idfPath = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
 outputDir = os.path.dirname(idfPath)  + '/output'
 
 energyplus_api = EnergyPlusAPI()
@@ -49,7 +51,7 @@ def collect_observations(state):
     
     warmUpFlag = dataExchange.warmup_flag(state)
 
-    if variableHandle1<0 or variableHandle2<0 or meterHandle3<0 or meterHandle4<0 or variableHandle5<0: 
+    if variableHandle1<0: #or variableHandle2<0 or meterHandle3<0 or meterHandle4<0 or variableHandle5<0: 
         variableHandle1 = dataExchange.get_variable_handle(state, 
                                                            "Zone Mean Air Temperature", 
                                                            "BLOCK1:ZONE1")
@@ -60,10 +62,15 @@ def collect_observations(state):
                                                      "Boiler:Heating:Electricity")
         meterHandle4 = dataExchange.get_meter_handle(state, 
                                                      "Pumps:Electricity")
+        # variableHandle5 = dataExchange.get_variable_handle(state, 
+        #                                                    "System Node Temperature", 
+        #                                                    "BOILER WATER OUTLET NODE")
         variableHandle5 = dataExchange.get_variable_handle(state, 
-                                                           "System Node Temperature", 
-                                                           "BOILER WATER OUTLET NODE")
+                                                           "Boiler Heating Energy", 
+                                                           "BOILER")
     else: 
+        month = dataExchange.month(state)
+        day = dataExchange.day_of_month(state)
         hour = dataExchange.hour(state)
         minute = dataExchange.minutes(state)
 
@@ -73,13 +80,16 @@ def collect_observations(state):
         meterValue4 = dataExchange.get_meter_value(state, meterHandle4) 
         variableValue5 = dataExchange.get_variable_value(state, variableHandle5) 
 
-        print(str(hour) + 
-              ":" + str(minute) + 
-              "__" + str(variableValue1) + 
-              "__" + str(variableValue2) + 
-              "__" + str(meterValue3) + 
-              "__" + str(meterValue4) + 
-              "__" + str(variableValue5))
+        # if meterValue4 > 0.1: 
+        print(str(month) +
+            ":" + str(day) + 
+            ":" + str(hour) + 
+            ":" + str(minute) + 
+            "__" + str(variableValue1) + 
+            #   "__" + str(variableValue2) + 
+            "__" + str(meterValue3) + 
+            "__" + str(meterValue4) + 
+            "__" + str(variableValue5))
         
     return
 
@@ -94,37 +104,47 @@ def send_actions(state):
         return
     if actuatorHandle1 < 0: 
         actuatorHandle1 = dataExchange.get_actuator_handle(state, 
-                                                           "Schedule:Compact", 
-                                                           "Schedule Value", 
-                                                           "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
+                                                    "Plant Component Boiler:HotWater", 
+                                                    "On/Off Supervisory", 
+                                                    "BOILER")
+        # actuatorHandle1 = dataExchange.get_actuator_handle(state, 
+        #                                                    "System Node Setpoint", 
+        #                                                    "Temperature Setpoint", 
+        #                                                    "BOILER WATER INLET NODE")
+                                                        #    "HW LOOP SUPPLY SIDE INLET")
+        # actuatorHandle1 = dataExchange.get_actuator_handle(state, 
+        #                                                    "Schedule:Compact", 
+        #                                                    "Schedule Value", 
+        #                                                    "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 30.0 C")
         actuatorHandle2 = dataExchange.get_actuator_handle(state, 
-                                                           "Schedule:Compact", 
-                                                           "Schedule Value", 
-                                                           "BLOCK1:ZONE1 HEATING SETPOINT SCHEDULE")
-        actuatorHandle3 = dataExchange.get_actuator_handle(state, 
-                                                           "Schedule:Compact", 
-                                                           "Schedule Value", 
-                                                           "BLOCK1:ZONE1 COOLING SETPOINT SCHEDULE")
+                                                           "Zone Temperature Control", 
+                                                           "Heating Setpoint", 
+                                                           "BLOCK1:ZONE1")
+    #     actuatorHandle3 = dataExchange.get_actuator_handle(state, 
+    #                                                        "Schedule:Compact", 
+    #                                                        "Schedule Value", 
+    #                                                        "BLOCK1:ZONE1 COOLING SETPOINT SCHEDULE")
     else:
         printApiFlagIfRaised(state)
         
-        # actuatorValue1 = dataExchange.get_actuator_value(state, actuatorHandle1)
+        actuatorValue1 = dataExchange.get_actuator_value(state, actuatorHandle1)
         # actuatorValue2 = dataExchange.get_actuator_value(state, actuatorHandle2)
         # actuatorValue3 = dataExchange.get_actuator_value(state, actuatorHandle3)
         # print("Set Point: " + str(actuatorValue1))
         # print("Set Point: " + str(actuatorValue2))
         # print("Set Point: " + str(actuatorValue3))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 10.0)
-        dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 0.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
+        # dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
     return
 
 # runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
-# runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
-runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
+runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
+# runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
 
 exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', EPW_PATH, idfPath])
+
 print("exit code (zero is success): " + str(exitCode))
 
