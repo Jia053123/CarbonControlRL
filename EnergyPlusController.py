@@ -3,12 +3,9 @@ from QueueOfOne import QueueOfOne
 import threading
 
 class EnergyPlusRuntimeController:
-    def __init__(self, observation_queue: QueueOfOne, action_queue: QueueOfOne):
+    def __init__(self): 
         self.energyplus_api = EnergyPlusAPI()
         self.dataExchange = self.energyplus_api.exchange
-
-        self.observation_queue = observation_queue
-        self.action_queue = action_queue
 
         self.energyplus_exec_thread: threading.Thread = None
         self.energyplus_state = None

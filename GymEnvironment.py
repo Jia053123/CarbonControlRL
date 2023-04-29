@@ -22,6 +22,7 @@ class Environment(gym.Env):
         self.actionObserverManager: ActionObservationManager = None
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
+        self.dataForReward_queue: QueueOfOne = None
 
         self.stillSizingSystem = True
         self.observation = None
@@ -57,8 +58,9 @@ class Environment(gym.Env):
         if not self.terminated: 
             self.observation_queue = QueueOfOne(timeout=5)
             self.action_queue = QueueOfOne(timeout=5)
+            self.dataForReward_queue = QueueOfOne(timeout=5)
 
-            self.energyPlusController = EnergyPlusRuntimeController(self.observation_queue, self.action_queue)
+            self.energyPlusController = EnergyPlusRuntimeController() 
             self.actionObserverManager = ActionObservationManager(self.energyPlusController.dataExchange, 
                                                                 self.action_queue, 
                                                                 self.observation_queue, 
