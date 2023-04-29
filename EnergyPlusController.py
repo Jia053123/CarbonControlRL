@@ -1,10 +1,9 @@
 from pyenergyplus.api import EnergyPlusAPI
-import numpy as np
-from queue import Queue, Empty, Full
+from QueueOfOne import QueueOfOne
 import threading
 
 class EnergyPlusRuntimeController:
-    def __init__(self, observation_queue: Queue, action_queue: Queue):
+    def __init__(self, observation_queue: QueueOfOne, action_queue: QueueOfOne):
         self.energyplus_api = EnergyPlusAPI()
         self.dataExchange = self.energyplus_api.exchange
 
@@ -15,7 +14,6 @@ class EnergyPlusRuntimeController:
         self.energyplus_state = None
         self.runtime = None
         self.exitCode = None
-        # self.progress_value: int = 0
         return
     
     def createRuntime(self):

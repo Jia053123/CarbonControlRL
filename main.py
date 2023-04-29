@@ -9,7 +9,7 @@ from stable_baselines3 import A2C # chose the higher setpoint in test
 from stable_baselines3 import SAC # much, much slower then PPO (multiple actors); did not produce optimal policy
 
 SAVE_PATH = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
-IDF_TIMESTEP = 6 # Timesteps/hour
+IDF_TIMESTEP = 6 # Timesteps/hour (must match with setting within idf file) 
 
 environment = Environment()
 model = PPO("MlpPolicy", environment, verbose=2, gamma=1.0) # gamma: discount factor

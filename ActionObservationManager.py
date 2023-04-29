@@ -1,4 +1,3 @@
-import os
 import numpy as np
 from pyenergyplus.api import EnergyPlusAPI
 from QueueOfOne import QueueOfOne
@@ -102,10 +101,6 @@ class ActionObservationManager:
             try: 
                 # wait until the values are available
                 actionChosen = self.actionQueue.get_wait() #[0]
-                # print(actionChosen)
-                # self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 80.0)
-                # self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], actionChosen)
-                # self.dataExchange.set_actuator_value(state, self.actuatorHandles[2], 31.0)
                 match int(actionChosen): 
                     case 0:
                         print("setpoint: 15")

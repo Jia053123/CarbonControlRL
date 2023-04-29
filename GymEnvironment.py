@@ -30,7 +30,6 @@ class Environment(gym.Env):
         # observation space (upper bound not included!!): Zone Mean Air Temp: 0-50C; hour of the day; Electricity for heating: 0-100 * 10000000
         self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 24]), dtype=np.float32)
         # action space: Heating Setpoint: choosing between two options
-        # self.action_space = Box(low=np.array([15]), high=np.array([30]), dtype=np.float32)
         self.action_space = Discrete(2) #{0, 1} 
 
         super().__init__()
@@ -94,8 +93,6 @@ class Environment(gym.Env):
 
 
         reward = -1 * self.observation[0]
-        # if self.observation[0] < 20:
-        #     reward -= 1000
 
         info = {}
         return self.observation, reward, self.terminated, False, info
