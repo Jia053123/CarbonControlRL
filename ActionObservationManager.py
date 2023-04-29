@@ -4,12 +4,13 @@ from QueueOfOne import QueueOfOne
 from queue import Empty, Full
 
 class ActionObservationManager: 
-    def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, outputDir):
+    def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, heatingElecDataQueue:QueueOfOne, outputDir):
         self.dataExchange = dataExchange
         self.outputDir = outputDir
 
         self.actionQueue: QueueOfOne = actionQueue
         self.observationQueue: QueueOfOne = observationQueue
+        self.heatingElecDataQueue: QueueOfOne = heatingElecDataQueue
 
         NUM_OF_SENSORS = 3
         NUM_OF_ACTUATORS = 2
@@ -17,8 +18,6 @@ class ActionObservationManager:
         self.sensorValues = np.repeat(float('nan'), NUM_OF_SENSORS)
         self.actuatorHandles = np.repeat(-1, NUM_OF_ACTUATORS)
         self.actuatorValues = np.repeat(float('nan'), NUM_OF_ACTUATORS)
-
-        self.heatingElectricConsumption = float('nan')
 
         self.warmUpFlag = True
         return
@@ -58,12 +57,13 @@ class ActionObservationManager:
             #     "__" + str(self.sensorValues[2]) + 
             #     "__" + str(self.sensorValues[3]) + 
             #     "__" + str(self.sensorValues[4]))
-            
-            self.heatingElectricConsumption = self.sensorValues[1] + self.sensorValues[2]
 
             observation = [self.sensorValues[0], hour]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
+
+            heatingElecConsumption = self.sensorValues[1] + self.sensorValues[2]
+            self.heatingElecDataQueue.put_overwrite(heatingElecConsumption)
         return
 
 
@@ -97,19 +97,19 @@ class ActionObservationManager:
                 actionChosen = self.actionQueue.get_wait()
                 match int(actionChosen): 
                     case 0:
-                        print("0, 15")
+                        # print("0, 15")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
                     case 1:
-                        print("1, 15")
+                        # print("1, 15")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
                     case 2:
-                        print("0, 0025")
+                        # print("0, 0025")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
                     case 3:
-                        print("1, 0025")
+                        # print("1, 0025")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
 

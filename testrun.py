@@ -3,8 +3,8 @@ from pyenergyplus.api import EnergyPlusAPI
 
 # idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 idfPath = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
 outputDir = os.path.dirname(idfPath)  + '/output'
 
 energyplus_api = EnergyPlusAPI()
@@ -12,6 +12,8 @@ dataExchange = energyplus_api.exchange
 
 energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
+
+totalReward = 0
 
 hasWrittenCSV = False
 def writeAvailableApiDataFile(run=True):
@@ -45,6 +47,7 @@ def collect_observations(state):
     global meterHandle3
     global meterHandle4
     global variableHandle5
+    global totalReward
     if not dataExchange.api_data_fully_ready(state):
         return
     writeAvailableApiDataFile(False) # Change to True to write the file in output folder
@@ -91,6 +94,8 @@ def collect_observations(state):
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
         
+        totalReward = totalReward - (meterValue3 + meterValue4)
+        
     return
 
 actuatorHandle1 = -1
@@ -134,8 +139,8 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue2))
         # print("Set Point: " + str(actuatorValue3))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 0.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 1.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 25.0)
         # dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
     return
 
@@ -147,4 +152,6 @@ runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collec
 exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', EPW_PATH, idfPath])
 
 print("exit code (zero is success): " + str(exitCode))
+
+print("simulated reward: " + str(totalReward))
 

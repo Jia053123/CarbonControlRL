@@ -22,10 +22,11 @@ class Environment(gym.Env):
         self.actionObserverManager: ActionObservationManager = None
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
-        self.dataForReward_queue: QueueOfOne = None
+        self.heatingElecData_queue: QueueOfOne = None
 
         self.stillSizingSystem = True
         self.observation = None
+        self.heatingElectricityConsumption = float('nan')
         self.terminated = False
 
         self.episode = -1
@@ -58,12 +59,13 @@ class Environment(gym.Env):
         if not self.terminated: 
             self.observation_queue = QueueOfOne(timeout=5)
             self.action_queue = QueueOfOne(timeout=5)
-            self.dataForReward_queue = QueueOfOne(timeout=5)
+            self.heatingElecData_queue = QueueOfOne(timeout=5)
 
             self.energyPlusController = EnergyPlusRuntimeController() 
             self.actionObserverManager = ActionObservationManager(self.energyPlusController.dataExchange, 
                                                                 self.action_queue, 
                                                                 self.observation_queue, 
+                                                                self.heatingElecData_queue,
                                                                 OUTPUT_DIR)
             
             runtime = self.energyPlusController.createRuntime()
@@ -96,12 +98,13 @@ class Environment(gym.Env):
             # if the last action has not been taken, make sure that is taken first
             self.action_queue.put_wait(action)
             self.observation = self.observation_queue.get_wait()
+            self.heatingElectricityConsumption = self.heatingElecData_queue.get_wait()
         except (Full, Empty):
             self.terminated = True
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-
-        reward = -1 * self.observation[0] # TODO: this is just the sum of air temp
+        print(self.heatingElectricityConsumption)
+        reward = -1 * self.heatingElectricityConsumption
 
         info = {}
         return self.observation, reward, self.terminated, False, info
