@@ -9,8 +9,10 @@ from EnergyPlusController import EnergyPlusRuntimeController
 from ActionObservationManager import ActionObservationManager
 from queue import Empty, Full
 
-IDF_PATH = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
+
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
 class Environment(gym.Env):
@@ -21,20 +23,23 @@ class Environment(gym.Env):
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
 
+        self.stillSizingSystem = True
         self.observation = None
         self.terminated = False
 
         self.episode = -1
         self.timestep = 0
 
-        # observation space (upper bound not included!!): Zone Mean Air Temp: 0-50C; hour of the day; Electricity for heating: 0-100 * 10000000
+        # observation space (upper bound not included!!): 
+        #  Zone Mean Air Temp Celsius: [0, 50); 
+        #  Hour of the day: [0, 24)]
         self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 24]), dtype=np.float32)
-        # action space: Heating Setpoint: choosing between two options
-        self.action_space = Discrete(2) #{0, 1} 
+        # action space: Boiler on/off and Zone heating setpoint; choosing between four options
+        self.action_space = Discrete(4) #{0, 1, 2, 3} 
 
         super().__init__()
         return
-    
+
     def reset(self):
         '''
         The reset method will be called to initiate a new episode. 
@@ -60,6 +65,8 @@ class Environment(gym.Env):
                                                                 OUTPUT_DIR)
             
             runtime = self.energyPlusController.createRuntime()
+
+
             runtime.callback_begin_system_timestep_before_predictor(self.energyPlusController.energyplus_state, 
                                                                     self.actionObserverManager.send_actions)
             runtime.callback_end_zone_timestep_after_zone_reporting(self.energyPlusController.energyplus_state, 
@@ -92,7 +99,7 @@ class Environment(gym.Env):
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 
-        reward = -1 * self.observation[0]
+        reward = -1 * self.observation[0] # TODO: this is just the sum of air temp
 
         info = {}
         return self.observation, reward, self.terminated, False, info
