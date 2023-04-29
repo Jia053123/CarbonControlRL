@@ -4,7 +4,8 @@ from pyenergyplus.api import EnergyPlusAPI
 # idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 idfPath = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
 outputDir = os.path.dirname(idfPath)  + '/output'
 
 energyplus_api = EnergyPlusAPI()

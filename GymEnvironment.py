@@ -11,7 +11,8 @@ from queue import Empty, Full
 
 IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
 
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
@@ -103,7 +104,6 @@ class Environment(gym.Env):
             self.terminated = True
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
-        print(self.heatingElectricityConsumption)
         reward = -1 * self.heatingElectricityConsumption
 
         info = {}
