@@ -1,10 +1,11 @@
- To run unit tests for QueueOfOne: 
+ To run unit tests: 
 
  ```shell
- python QueueOfOneTests.py
+ python UnitTests.py
  ```
 
 ==============================================
+# Installation: 
 
 Make sure energyplus 9.4 is installed on computer (download from official site) 
 Make sure environmental variable PYTHONPATH has value C:\EnergyPlusV9-4-0
@@ -15,6 +16,11 @@ To test the energyplus api is accessalbe:
 python -c 'from pyenergyplus.api import EnergyPlusAPI; print(EnergyPlusAPI.api_version())'
 ``` 
 should output 0.2
+
+Install Stable Baselines 3, Bleeding Edge version:
+ ```shell
+pip install git+https://github.com/DLR-RM/stable-baselines3
+```
 
 ============================================
 

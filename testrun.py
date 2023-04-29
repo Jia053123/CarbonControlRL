@@ -1,8 +1,5 @@
 import os
 from pyenergyplus.api import EnergyPlusAPI
-import numpy as np
-from EnergyPlusController import EnergyPlusRuntimeController
-from GymEnvironment import Environment
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
@@ -119,12 +116,13 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue3))
 
         dataExchange.set_actuator_value(state, actuatorHandle1, 80.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 10.0)
         dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
     return
 
-runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
+# runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
 # runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
+runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
 
 exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', EPW_PATH, idfPath])
