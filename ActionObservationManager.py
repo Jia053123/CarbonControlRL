@@ -63,6 +63,7 @@ class ActionObservationManager:
             self.observationQueue.put_overwrite(observation)
 
             heatingElecConsumption = self.sensorValues[1] + self.sensorValues[2]
+            # print(heatingElecConsumption)
             self.heatingElecDataQueue.put_overwrite(heatingElecConsumption)
         return
 

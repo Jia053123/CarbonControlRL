@@ -17,7 +17,7 @@ EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
 class Environment(gym.Env):
-    def __init__(self):
+    def __init__(self, analysisDataList:list = None):
         print("init+++++++++++++++++++++++++++++++++++++")
         self.energyPlusController: EnergyPlusRuntimeController = None
         self.actionObserverManager: ActionObservationManager = None
@@ -29,6 +29,8 @@ class Environment(gym.Env):
         self.observation = None
         self.heatingElectricityConsumption = float('nan')
         self.terminated = False
+
+        self.analysisDataList = analysisDataList
 
         self.episode = -1
         self.timestep = 0
@@ -104,6 +106,12 @@ class Environment(gym.Env):
             self.terminated = True
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
+        month = self.energyPlusController.dataExchange.month(self.energyPlusController.energyplus_state)
+        hour = self.energyPlusController.dataExchange.hour(self.energyPlusController.energyplus_state)
+
+        if self.analysisDataList is not None:
+            self.analysisDataList.append([month, hour, self.heatingElectricityConsumption])
+            
         reward = -1 * self.heatingElectricityConsumption
 
         info = {}
