@@ -108,10 +108,11 @@ class Environment(gym.Env):
 
         month = self.energyPlusController.dataExchange.month(self.energyPlusController.energyplus_state)
         hour = self.energyPlusController.dataExchange.hour(self.energyPlusController.energyplus_state)
+        minute = self.energyPlusController.dataExchange.minutes(self.energyPlusController.energyplus_state)
 
         if self.analysisDataList is not None:
             self.analysisDataList.append([month, hour, self.heatingElectricityConsumption])
-            
+
         reward = -1 * self.heatingElectricityConsumption
 
         info = {}
