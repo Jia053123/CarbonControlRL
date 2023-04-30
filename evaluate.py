@@ -23,6 +23,6 @@ mean_reward, std_reward = evaluate_policy(modelToEval, evalEnvironment, n_eval_e
 print("evaluation complete ****************************************")
 print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
 
-df = pd.DataFrame(analysisData, columns =['month', 'hour', 'heating electricity']) 
+df = pd.DataFrame(analysisData, columns =['year', 'month', 'day', 'hour', 'minute', 'heating electricity']) 
 df.to_csv(SAVE_PATH_CSV, index=False)
 print("analysis data saved ****************************************") 

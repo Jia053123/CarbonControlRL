@@ -3,6 +3,7 @@ import gymnasium as gym
 # from gymnasium import spaces
 from gymnasium.spaces.box import Box
 from gymnasium.spaces.discrete import Discrete
+from gymnasium.spaces.multi_discrete import MultiDiscrete
 import numpy as np
 from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
@@ -40,7 +41,7 @@ class Environment(gym.Env):
         #  Hour of the day: [0, 24)]
         self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 24]), dtype=np.float32)
         # action space: Boiler on/off and Zone heating setpoint; choosing between four options
-        self.action_space = Discrete(4) #{0, 1, 2, 3} 
+        self.action_space = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
 
         super().__init__()
         return
@@ -100,18 +101,21 @@ class Environment(gym.Env):
         try:
             # if the last action has not been taken, make sure that is taken first
             self.action_queue.put_wait(action)
+            # energy plus runs here on its own thread
             self.observation = self.observation_queue.get_wait()
             self.heatingElectricityConsumption = self.heatingElecData_queue.get_wait()
         except (Full, Empty):
             self.terminated = True
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
+        year = self.energyPlusController.dataExchange.year(self.energyPlusController.energyplus_state)
         month = self.energyPlusController.dataExchange.month(self.energyPlusController.energyplus_state)
+        day = self.energyPlusController.dataExchange.day_of_month(self.energyPlusController.energyplus_state)
         hour = self.energyPlusController.dataExchange.hour(self.energyPlusController.energyplus_state)
         minute = self.energyPlusController.dataExchange.minutes(self.energyPlusController.energyplus_state)
 
         if self.analysisDataList is not None:
-            self.analysisDataList.append([month, hour, self.heatingElectricityConsumption])
+            self.analysisDataList.append([year, month, day, hour, minute, self.heatingElectricityConsumption])
 
         reward = -1 * self.heatingElectricityConsumption
 
