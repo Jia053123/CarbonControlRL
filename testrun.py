@@ -140,8 +140,8 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue2))
         # print("Set Point: " + str(actuatorValue3))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 1.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 25.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 0.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 15.0)
         # dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
     return
 

@@ -11,6 +11,7 @@ from ActionObservationManager import ActionObservationManager
 from queue import Empty, Full
 
 IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
+
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
@@ -37,9 +38,10 @@ class Environment(gym.Env):
         self.timestep = 0
 
         # observation space (upper bound not included!!): 
-        #  Zone Mean Air Temp Celsius: [0, 50); 
-        #  Hour of the day: [0, 24)]
-        self.observation_space = Box(low=np.array([0, 0]), high=np.array([50, 24]), dtype=np.float32)
+        #  Zone Mean Air Temp Celsius: [0, 50)
+        #  Outdoor Air Temp Celsius: [-40, 60)
+        #  Hour of the day: [0, 24)
+        self.observation_space = Box(low=np.array([0, -40, 0]), high=np.array([50, 60, 24]), dtype=np.float32)
         # action space: Boiler on/off and Zone heating setpoint; choosing between four options
         self.action_space = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
 

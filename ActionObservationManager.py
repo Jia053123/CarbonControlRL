@@ -12,7 +12,7 @@ class ActionObservationManager:
         self.observationQueue: QueueOfOne = observationQueue
         self.heatingElecDataQueue: QueueOfOne = heatingElecDataQueue
 
-        NUM_OF_SENSORS = 3
+        NUM_OF_SENSORS = 4
         NUM_OF_ACTUATORS = 2
         self.sensorHandles = np.repeat(-1, NUM_OF_SENSORS)
         self.sensorValues = np.repeat(float('nan'), NUM_OF_SENSORS)
@@ -38,17 +38,22 @@ class ActionObservationManager:
             self.sensorHandles[0] = self.dataExchange.get_variable_handle(state, 
                                                                         "Zone Mean Air Temperature", 
                                                                         "BLOCK1:ZONE1")
-            self.sensorHandles[1] = self.dataExchange.get_meter_handle(state, 
-                                                                    "Boiler:Heating:Electricity")
+            self.sensorHandles[1] = self.dataExchange.get_variable_handle(state, 
+                                                                          "Site Outdoor Air Drybulb Temperature", 
+                                                                          "ENVIRONMENT")
             self.sensorHandles[2] = self.dataExchange.get_meter_handle(state, 
+                                                                    "Boiler:Heating:Electricity")
+            self.sensorHandles[3] = self.dataExchange.get_meter_handle(state, 
                                                                     "Pumps:Electricity")
 
         if -1 not in self.sensorHandles:
             hour = self.dataExchange.hour(state)
+            month = self.dataExchange.month(state)
 
             self.sensorValues[0] = self.dataExchange.get_variable_value(state, self.sensorHandles[0]) 
-            self.sensorValues[1] = self.dataExchange.get_meter_value(state, self.sensorHandles[1]) 
-            self.sensorValues[2] = self.dataExchange.get_meter_value(state, self.sensorHandles[2]) 
+            self.sensorValues[1] = self.dataExchange.get_variable_value(state, self.sensorHandles[3])
+            self.sensorValues[2] = self.dataExchange.get_meter_value(state, self.sensorHandles[1]) 
+            self.sensorValues[3] = self.dataExchange.get_meter_value(state, self.sensorHandles[2]) 
 
             # print(str(hour) + 
             #     ":" + str(minute) + 
@@ -58,11 +63,11 @@ class ActionObservationManager:
             #     "__" + str(self.sensorValues[3]) + 
             #     "__" + str(self.sensorValues[4]))
 
-            observation = [self.sensorValues[0], hour]
+            observation = [self.sensorValues[0], self.sensorValues[1], hour]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
 
-            heatingElecConsumption = self.sensorValues[1] + self.sensorValues[2]
+            heatingElecConsumption = self.sensorValues[2] + self.sensorValues[3]
             # print(heatingElecConsumption)
             self.heatingElecDataQueue.put_overwrite(heatingElecConsumption)
         return
