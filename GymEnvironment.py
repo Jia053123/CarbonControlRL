@@ -1,6 +1,5 @@
 import os
 import gymnasium as gym
-# from gymnasium import spaces
 from gymnasium.spaces.box import Box
 from gymnasium.spaces.discrete import Discrete
 from gymnasium.spaces.multi_discrete import MultiDiscrete
@@ -9,12 +8,11 @@ from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
 from ActionObservationManager import ActionObservationManager
 from queue import Empty, Full
-
 from info_for_agent import CarbonPredictor
+import ControlPanel
 
-IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
-# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
+IDF_PATH = ControlPanel.getIdfPath()
+EPW_PATH = ControlPanel.getEpwPath()
 
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
@@ -37,14 +35,8 @@ class Environment(gym.Env):
         self.episode = -1
         self.timestep = 0
 
-        # observation space (upper bound not included!!): 
-        #  Zone Mean Air Temp Celsius: [0, 50)
-        #  Outdoor Air Temp Celsius: [-40, 60)
-        #  Hour of the day: [0, 24)
-        self.observation_space = Box(low=np.array([-40]), high=np.array([60]), dtype=np.float32)
-        # action space: Boiler on/off and Zone heating setpoint; choosing between four options
-        self.action_space = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
-
+        self.observation_space = ControlPanel.getObservationSpace()
+        self.action_space = ControlPanel.getActionSpace()
         self.carbonPredictor = CarbonPredictor()
 
         self.accumulatedReward = 0
@@ -123,9 +115,9 @@ class Environment(gym.Env):
         if self.analysisDataList is not None:
             self.analysisDataList.append([year, month, day, hour, minute, self.heatingElectricityConsumption])
 
-        # carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
-        # print(carbonRate)
-        reward = -1 * self.heatingElectricityConsumption #* carbonRate
+        reward = ControlPanel.calculateReward(self.carbonPredictor, 
+                                              year, month, day, hour, minute, 
+                                              self.heatingElectricityConsumption)
         self.accumulatedReward += reward
         self.rewardCount += 1
 

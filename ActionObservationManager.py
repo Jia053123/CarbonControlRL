@@ -2,6 +2,7 @@ import numpy as np
 from pyenergyplus.api import EnergyPlusAPI
 from QueueOfOne import QueueOfOne
 from queue import Empty, Full
+import ControlPanel
 
 class ActionObservationManager: 
     def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, heatingElecDataQueue:QueueOfOne, outputDir):
@@ -70,35 +71,24 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[2]) + 
                 "__" + str(self.sensorValues[3]))
 
-            # observation = [self.sensorValues[0], self.sensorValues[1], hour]
-            observation = [self.sensorValues[1]]
+            observation = ControlPanel.getObservation(self.sensorValues[0], self.sensorValues[1], self.sensorValues[2], hour)
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
 
-            heatingElecConsumption = self.sensorValues[2]
-            # print(heatingElecConsumption)
+            heatingElecConsumption = ControlPanel.getHeatingElecConsumption(self.sensorValues[2])
             self.heatingElecDataQueue.put_overwrite(heatingElecConsumption)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
         return
 
     def set_actuators(self, action, state): 
-        match int(action.item(0)): 
-            case 0:
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
-            case 1:
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
-
-        match int(action.item(1)): 
-            case 0:
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
-            case 1:
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
+        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], ControlPanel.boilerOnOrOff(action))
+        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], ControlPanel.heatSetPoint(action))
 
         self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
         print(self.actuatorValues[0])
         self.actuatorValues[1] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[1])
-        print("_" + str(self.actuatorValues[1]))
+        print("____" + str(self.actuatorValues[1]))
         return
 
     def send_actions(self, state):

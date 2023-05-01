@@ -100,7 +100,7 @@ def collect_observations(state):
             "__" + str(variableValue5))
         
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
-        accumulatedReward = accumulatedReward - meterValue3 #* carbonRate
+        accumulatedReward = accumulatedReward - meterValue3 * carbonRate
         rewardCount += 1
     return
 
