@@ -1,6 +1,7 @@
 import os
 from pyenergyplus.api import EnergyPlusAPI
 from info_for_agent import CarbonPredictor
+from ComfortMetrics import calcComfortMetric
 import pandas as pd  
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
@@ -102,12 +103,13 @@ def collect_observations(state):
             "__" + str(meterValue3) + 
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
-        
-        analysisDataList.append([year, month, day, hour, minute, variableValue1, meterValue3])
 
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
-        accumulatedReward = accumulatedReward - meterValue3 * carbonRate
+        comfort = calcComfortMetric(temperature=variableValue1, month=month, day=day, hour=hour)
+        accumulatedReward = accumulatedReward - meterValue3 #* carbonRate
         rewardCount += 1
+
+        analysisDataList.append([year, month, day, hour, minute, variableValue1, meterValue3, carbonRate, comfort])
     return
 
 actuatorHandle1 = -1
@@ -152,7 +154,7 @@ print("reward count: " + str(rewardCount))
 print("accumulated reward: " + str(accumulatedReward))
 
 df = pd.DataFrame(analysisDataList, 
-                  columns =['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity']) 
+                  columns =['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'carbon rate', 'comfort metric']) 
 df.to_csv(SAVE_PATH_CSV, index=False)
 print("analysis data saved ****************************************") 
 
