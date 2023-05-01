@@ -80,8 +80,10 @@ class Environment(gym.Env):
             runtime = self.energyPlusController.createRuntime()
 
 
-            runtime.callback_begin_system_timestep_before_predictor(self.energyPlusController.energyplus_state, 
-                                                                    self.actionObserverManager.send_actions)
+            # runtime.callback_begin_system_timestep_before_predictor(self.energyPlusController.energyplus_state, 
+            #                                                         self.actionObserverManager.send_actions)
+            runtime.callback_inside_system_iteration_loop(self.energyPlusController.energyplus_state, 
+                                                          self.actionObserverManager.send_actions)
             runtime.callback_end_zone_timestep_after_zone_reporting(self.energyPlusController.energyplus_state, 
                                                                     self.actionObserverManager.collect_observations)
 
@@ -124,10 +126,11 @@ class Environment(gym.Env):
             self.analysisDataList.append([year, month, day, hour, minute, self.heatingElectricityConsumption])
 
         carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
-        print(carbonRate)
+        # print(carbonRate)
         reward = -1 * self.heatingElectricityConsumption * carbonRate
 
         info = {}
+        print(self.timestep)
         return self.observation, reward, self.terminated, False, info
     
     def render(self):

@@ -19,6 +19,10 @@ class ActionObservationManager:
         self.actuatorHandles = np.repeat(-1, NUM_OF_ACTUATORS)
         self.actuatorValues = np.repeat(float('nan'), NUM_OF_ACTUATORS)
 
+        self.observationNumber = 0
+        self.oldObservationNumber = 0
+        self.oldActionChosen = None
+
         self.warmUpFlag = True
         return
 
@@ -49,29 +53,51 @@ class ActionObservationManager:
         if -1 not in self.sensorHandles:
             hour = self.dataExchange.hour(state)
             month = self.dataExchange.month(state)
+            day = self.dataExchange.day_of_month(state)
+            minute = self.dataExchange.minutes(state)
 
             self.sensorValues[0] = self.dataExchange.get_variable_value(state, self.sensorHandles[0]) 
             self.sensorValues[1] = self.dataExchange.get_variable_value(state, self.sensorHandles[3])
             self.sensorValues[2] = self.dataExchange.get_meter_value(state, self.sensorHandles[1]) 
             self.sensorValues[3] = self.dataExchange.get_meter_value(state, self.sensorHandles[2]) 
 
-            # print(str(hour) + 
-            #     ":" + str(minute) + 
-            #     "__" + str(self.sensorValues[0]) + 
-            #     "__" + str(self.sensorValues[1]) + 
-            #     "__" + str(self.sensorValues[2]) + 
-            #     "__" + str(self.sensorValues[3]) + 
-            #     "__" + str(self.sensorValues[4]))
+            print(str(month) +
+                ":" + str(day) +
+                ":" + str(hour) + 
+                ":" + str(minute) + 
+                "__" + str(self.sensorValues[0]) + 
+                "__" + str(self.sensorValues[1]) + 
+                "__" + str(self.sensorValues[2]) + 
+                "__" + str(self.sensorValues[3]))
 
             observation = [self.sensorValues[0], self.sensorValues[1], hour]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
 
-            heatingElecConsumption = self.sensorValues[2] + self.sensorValues[3]
+            heatingElecConsumption = self.sensorValues[2]
             # print(heatingElecConsumption)
             self.heatingElecDataQueue.put_overwrite(heatingElecConsumption)
+
+            self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
         return
 
+    def set_actuators(self, action, state): 
+        match int(action.item(0)): 
+            case 0:
+                # print("00")
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
+            case 1:
+                # print("11")
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
+
+        match int(action.item(1)): 
+            case 0:
+                # print("0015")
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
+            case 1:
+                # print("0025")
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
+        return
 
     def send_actions(self, state):
         self.warmUpFlag = self.dataExchange.warmup_flag(state)
@@ -90,34 +116,32 @@ class ActionObservationManager:
                                                                             "BLOCK1:ZONE1")
 
         else:
-            self.printApiFlagIfRaised(state)
-            
-            self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
-            self.actuatorValues[1] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[1])
+            if self.observationNumber > self.oldObservationNumber: 
+                # a new observation is already made and read by agent so no further action needed for that one; 
+                # wait for the new action soon to be issued by agent
+                self.oldObservationNumber = self.observationNumber
+                self.printApiFlagIfRaised(state)
+                
+                self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
+                self.actuatorValues[1] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[1])
+                # print("On or Off: " + str(self.actuatorValues[0]))
+                # print("Set Point: " + str(self.actuatorValues[1]))
 
-            # print("On or Off: " + str(self.actuatorValues[0]))
-            # print("Set Point: " + str(self.actuatorValues[1]))
+                try: 
+                    # wait until the values are available
+                    actionChosen = self.actionQueue.get_wait()
+                    self.oldActionChosen = actionChosen
 
-            try: 
-                # wait until the values are available
-                actionChosen = self.actionQueue.get_wait()
-                match int(actionChosen.item(0)): 
-                    case 0:
-                        # print("00")
-                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
-                    case 1:
-                        # print("11")
-                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
+                    self.set_actuators(actionChosen, state)
+                    print("new action")
 
-                match int(actionChosen.item(1)): 
-                    case 0:
-                        # print("0015")
-                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
-                    case 1:
-                        # print("0025")
-                        self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
+                except Empty:
+                    print("actuatorValuesToSet = self.actionQueue.get_wait() raises Empty exception")
+            else:
+                # a new observation has not been made and read by agent;
+                # keep sending the old one
+                self.set_actuators(self.oldActionChosen, state)
+                print("old")
 
-            except Empty:
-                print("actuatorValuesToSet = self.actionQueue.get_wait() raises Empty exception")
         return
 
