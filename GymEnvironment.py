@@ -13,7 +13,6 @@ from queue import Empty, Full
 from info_for_agent import CarbonPredictor
 
 IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
-
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
 
@@ -78,10 +77,6 @@ class Environment(gym.Env):
                                                                 OUTPUT_DIR)
             
             runtime = self.energyPlusController.createRuntime()
-
-
-            # runtime.callback_begin_system_timestep_before_predictor(self.energyPlusController.energyplus_state, 
-            #                                                         self.actionObserverManager.send_actions)
             runtime.callback_inside_system_iteration_loop(self.energyPlusController.energyplus_state, 
                                                           self.actionObserverManager.send_actions)
             runtime.callback_end_zone_timestep_after_zone_reporting(self.energyPlusController.energyplus_state, 
@@ -125,9 +120,9 @@ class Environment(gym.Env):
         if self.analysisDataList is not None:
             self.analysisDataList.append([year, month, day, hour, minute, self.heatingElectricityConsumption])
 
-        carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
+        # carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
         # print(carbonRate)
-        reward = -1 * self.heatingElectricityConsumption * carbonRate
+        reward = -1 * self.heatingElectricityConsumption #* carbonRate
 
         info = {}
         print(self.timestep)

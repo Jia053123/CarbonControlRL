@@ -1,5 +1,6 @@
 import os
 from pyenergyplus.api import EnergyPlusAPI
+from info_for_agent import CarbonPredictor
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
@@ -14,6 +15,8 @@ energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
 totalReward = 0
+
+carbonPredictor = CarbonPredictor()
 
 hasWrittenCSV = False
 def writeAvailableApiDataFile(run=True):
@@ -48,6 +51,7 @@ def collect_observations(state):
     global meterHandle4
     global variableHandle5
     global totalReward
+    global carbonPredictor
     if not dataExchange.api_data_fully_ready(state):
         return
     writeAvailableApiDataFile(False) # Change to True to write the file in output folder
@@ -69,10 +73,12 @@ def collect_observations(state):
                                                            "Boiler Heating Energy", 
                                                            "BOILER")
     else: 
+        year = dataExchange.year(state)
         month = dataExchange.month(state)
         day = dataExchange.day_of_month(state)
         hour = dataExchange.hour(state)
         minute = dataExchange.minutes(state)
+        minute = minute - 1
 
         variableValue1 = dataExchange.get_variable_value(state, variableHandle1) 
         variableValue2 = dataExchange.get_variable_value(state, variableHandle2) 
@@ -91,7 +97,8 @@ def collect_observations(state):
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
         
-        totalReward = totalReward - meterValue3
+        carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
+        totalReward = totalReward - meterValue3 * carbonRate
     return
 
 actuatorHandle1 = -1
@@ -122,7 +129,7 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue2))
 
         dataExchange.set_actuator_value(state, actuatorHandle1, 1.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 25.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 15.0)
     return
 
 runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
