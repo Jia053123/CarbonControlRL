@@ -47,6 +47,9 @@ class Environment(gym.Env):
 
         self.carbonPredictor = CarbonPredictor()
 
+        self.accumulatedReward = 0
+        self.rewardCount = 0
+
         super().__init__()
         return
 
@@ -123,6 +126,8 @@ class Environment(gym.Env):
         # carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
         # print(carbonRate)
         reward = -1 * self.heatingElectricityConsumption #* carbonRate
+        self.accumulatedReward += reward
+        self.rewardCount += 1
 
         info = {}
         print(self.timestep)

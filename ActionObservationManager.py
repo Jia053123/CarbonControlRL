@@ -90,7 +90,7 @@ class ActionObservationManager:
 
         match int(action.item(1)): 
             case 0:
-                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 10.0)
+                self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
             case 1:
                 self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
 

@@ -14,7 +14,8 @@ dataExchange = energyplus_api.exchange
 energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
-totalReward = 0
+accumulatedReward = 0
+rewardCount = 0
 
 carbonPredictor = CarbonPredictor()
 
@@ -50,8 +51,9 @@ def collect_observations(state):
     global meterHandle3
     global meterHandle4
     global variableHandle5
-    global totalReward
+    global accumulatedReward
     global carbonPredictor
+    global rewardCount
     if not dataExchange.api_data_fully_ready(state):
         return
     writeAvailableApiDataFile(False) # Change to True to write the file in output folder
@@ -98,7 +100,8 @@ def collect_observations(state):
             "__" + str(variableValue5))
         
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
-        totalReward = totalReward - meterValue3 * carbonRate
+        accumulatedReward = accumulatedReward - meterValue3 #* carbonRate
+        rewardCount += 1
     return
 
 actuatorHandle1 = -1
@@ -139,5 +142,6 @@ exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', EPW_
 
 print("exit code (zero is success): " + str(exitCode))
 
-print("simulated reward: " + str(totalReward))
+print("reward count: " + str(rewardCount))
+print("accumulated reward: " + str(accumulatedReward))
 
