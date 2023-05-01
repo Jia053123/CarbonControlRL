@@ -1,10 +1,12 @@
 import os
 from pyenergyplus.api import EnergyPlusAPI
 from info_for_agent import CarbonPredictor
+import pandas as pd  
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
 EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+SAVE_PATH_CSV = "C:/Users/Eppy/Documents/CarbonControlRL/Analysis/AnalysisData_baseline.csv"
 
 outputDir = os.path.dirname(idfPath)  + '/output'
 
@@ -14,6 +16,7 @@ dataExchange = energyplus_api.exchange
 energyplus_state = energyplus_api.state_manager.new_state()
 runtime = energyplus_api.runtime
 
+analysisDataList = []
 accumulatedReward = 0
 rewardCount = 0
 
@@ -51,6 +54,7 @@ def collect_observations(state):
     global meterHandle3
     global meterHandle4
     global variableHandle5
+    global analysisDataList
     global accumulatedReward
     global carbonPredictor
     global rewardCount
@@ -99,6 +103,8 @@ def collect_observations(state):
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
         
+        analysisDataList.append([year, month, day, hour, minute, meterValue3])
+
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
         accumulatedReward = accumulatedReward - meterValue3 * carbonRate
         rewardCount += 1
@@ -131,8 +137,8 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue1))
         # print("Set Point: " + str(actuatorValue2))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 1.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 15.0)
+        # dataExchange.set_actuator_value(state, actuatorHandle1, 1.0)
+        # dataExchange.set_actuator_value(state, actuatorHandle2, 15.0)
     return
 
 runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
@@ -144,4 +150,8 @@ print("exit code (zero is success): " + str(exitCode))
 
 print("reward count: " + str(rewardCount))
 print("accumulated reward: " + str(accumulatedReward))
+
+df = pd.DataFrame(analysisDataList, columns =['year', 'month', 'day', 'hour', 'minute', 'heating electricity']) 
+df.to_csv(SAVE_PATH_CSV, index=False)
+print("analysis data saved ****************************************") 
 

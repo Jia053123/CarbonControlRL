@@ -13,7 +13,7 @@ from stable_baselines3.common.evaluation import evaluate_policy
 import pandas as pd  
 
 PATH_MODEL = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
-SAVE_PATH_CSV = "C:/Users/Eppy/Documents/CarbonControlRL/Analysis/AnalysisData.csv"
+SAVE_PATH_CSV = "C:/Users/Eppy/Documents/CarbonControlRL/Analysis/AnalysisData_agent.csv"
 
 modelToEval = PPO.load(PATH_MODEL)
 
