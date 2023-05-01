@@ -10,11 +10,15 @@ from EnergyPlusController import EnergyPlusRuntimeController
 from ActionObservationManager import ActionObservationManager
 from queue import Empty, Full
 
-IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
+from info_for_agent import CarbonPredictor
+
+# IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
+IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
 
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"
 
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
@@ -44,6 +48,8 @@ class Environment(gym.Env):
         self.observation_space = Box(low=np.array([0, -40, 0]), high=np.array([50, 60, 24]), dtype=np.float32)
         # action space: Boiler on/off and Zone heating setpoint; choosing between four options
         self.action_space = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
+
+        self.carbonPredictor = CarbonPredictor()
 
         super().__init__()
         return
@@ -115,11 +121,14 @@ class Environment(gym.Env):
         day = self.energyPlusController.dataExchange.day_of_month(self.energyPlusController.energyplus_state)
         hour = self.energyPlusController.dataExchange.hour(self.energyPlusController.energyplus_state)
         minute = self.energyPlusController.dataExchange.minutes(self.energyPlusController.energyplus_state)
+        minute = minute - 1 # for the carbon script
 
         if self.analysisDataList is not None:
             self.analysisDataList.append([year, month, day, hour, minute, self.heatingElectricityConsumption])
 
-        reward = -1 * self.heatingElectricityConsumption
+        carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
+        print(carbonRate)
+        reward = -1 * self.heatingElectricityConsumption * carbonRate
 
         info = {}
         return self.observation, reward, self.terminated, False, info

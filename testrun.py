@@ -2,10 +2,14 @@ import os
 from pyenergyplus.api import EnergyPlusAPI
 
 # idfPath = "C:/Users/Eppy/Documents/IDFs/UnderFloorHeatingPresetCA_Electric.idf"
-idfPath = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
+# idfPath = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
+# idfPath = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y_off.idf"
+idfPath = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019-2020.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
+# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
 outputDir = os.path.dirname(idfPath)  + '/output'
 
 energyplus_api = EnergyPlusAPI()
@@ -95,7 +99,7 @@ def collect_observations(state):
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
         
-        totalReward = totalReward - (meterValue3 + meterValue4)
+        totalReward = totalReward - (variableValue5) #+ meterValue4)
         
     return
 
@@ -121,11 +125,15 @@ def send_actions(state):
         # actuatorHandle1 = dataExchange.get_actuator_handle(state, 
         #                                                    "Schedule:Compact", 
         #                                                    "Schedule Value", 
-        #                                                    "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 30.0 C")
+        #                                                    "HOT WATER FLOW SET POINT TEMPERATURE: ALWAYS 80.0 C")
+        # actuatorHandle2 = dataExchange.get_actuator_handle(state, 
+        #                                                    "Zone Temperature Control", 
+        #                                                    "Heating Setpoint", 
+        #                                                    "BLOCK1:ZONE1")
         actuatorHandle2 = dataExchange.get_actuator_handle(state, 
-                                                           "Zone Temperature Control", 
-                                                           "Heating Setpoint", 
-                                                           "BLOCK1:ZONE1")
+                                                           "Schedule:Compact", 
+                                                           "Schedule Value", 
+                                                           "HEATING SET POINT SCHEDULE")
     #     actuatorHandle3 = dataExchange.get_actuator_handle(state, 
     #                                                        "Schedule:Compact", 
     #                                                        "Schedule Value", 
@@ -140,14 +148,14 @@ def send_actions(state):
         # print("Set Point: " + str(actuatorValue2))
         # print("Set Point: " + str(actuatorValue3))
 
-        dataExchange.set_actuator_value(state, actuatorHandle1, 0.0)
-        dataExchange.set_actuator_value(state, actuatorHandle2, 15.0)
+        dataExchange.set_actuator_value(state, actuatorHandle1, 1.0)
+        dataExchange.set_actuator_value(state, actuatorHandle2, 20.0)
         # dataExchange.set_actuator_value(state, actuatorHandle3, 31.0)
     return
 
 # runtime.callback_begin_system_timestep_before_predictor(energyplus_state, send_actions)
-runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
-# runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
+# runtime.callback_after_predictor_after_hvac_managers(energyplus_state, send_actions)
+runtime.callback_inside_system_iteration_loop(energyplus_state, send_actions)
 runtime.callback_end_zone_timestep_after_zone_reporting(energyplus_state, collect_observations)
 
 exitCode = runtime.run_energyplus(energyplus_state, ['-d', outputDir, '-w', EPW_PATH, idfPath])
