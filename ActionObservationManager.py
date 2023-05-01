@@ -70,7 +70,8 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[2]) + 
                 "__" + str(self.sensorValues[3]))
 
-            observation = [self.sensorValues[0], self.sensorValues[1], hour]
+            # observation = [self.sensorValues[0], self.sensorValues[1], hour]
+            observation = [self.sensorValues[1]]
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
 
@@ -112,9 +113,9 @@ class ActionObservationManager:
                                                                             "On/Off Supervisory", 
                                                                             "BOILER")
             self.actuatorHandles[1] = self.dataExchange.get_actuator_handle(state, 
-                                                                            "Zone Temperature Control", 
-                                                                            "Heating Setpoint", 
-                                                                            "BLOCK1:ZONE1")
+                                                                            "Schedule:Compact", 
+                                                                            "Schedule Value", 
+                                                                            "HEATING SET POINT SCHEDULE")
 
         else:
             if self.observationNumber > self.oldObservationNumber: 

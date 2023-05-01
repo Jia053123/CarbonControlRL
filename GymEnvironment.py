@@ -41,7 +41,7 @@ class Environment(gym.Env):
         #  Zone Mean Air Temp Celsius: [0, 50)
         #  Outdoor Air Temp Celsius: [-40, 60)
         #  Hour of the day: [0, 24)
-        self.observation_space = Box(low=np.array([0, -40, 0]), high=np.array([50, 60, 24]), dtype=np.float32)
+        self.observation_space = Box(low=np.array([-40]), high=np.array([60]), dtype=np.float32)
         # action space: Boiler on/off and Zone heating setpoint; choosing between four options
         self.action_space = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
 
