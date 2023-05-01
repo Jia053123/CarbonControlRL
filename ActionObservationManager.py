@@ -105,20 +105,16 @@ class ActionObservationManager:
                     case 0:
                         # print("00")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
-                        # self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
                     case 1:
                         # print("11")
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
-                        # self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
 
                 match int(actionChosen.item(1)): 
                     case 0:
                         # print("0015")
-                        # self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 0.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 15.0)
                     case 1:
                         # print("0025")
-                        # self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], 1.0)
                         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], 25.0)
 
             except Empty:

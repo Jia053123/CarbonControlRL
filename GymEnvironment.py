@@ -12,13 +12,10 @@ from queue import Empty, Full
 
 from info_for_agent import CarbonPredictor
 
-# IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office1111222.idf"
 IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
 
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_CA_San.Diego-Lindbergh.Field.722900_TMY3.epw"
-# EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KSFO-San_Francisco-2019.epw"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
 
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 

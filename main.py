@@ -13,7 +13,7 @@ SAVE_PATH_MODEL = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
 IDF_TIMESTEP = 6 # Timesteps/hour (must match with setting within idf file) 
 
 environment = Environment()
-model = PPO("MlpPolicy", environment, verbose=2, gamma=1.0) # gamma: discount factor
+model = PPO("MlpPolicy", environment, verbose=2, gamma=0.99) # gamma: discount factor
 model.learn(total_timesteps = 8192 * IDF_TIMESTEP) # 16384 when Timestep=2
 print("done learning ***************************************")
 
