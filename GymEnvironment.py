@@ -10,14 +10,13 @@ from ActionObservationManager import ActionObservationManager
 from queue import Empty, Full
 import ControlPanel
 
-IDF_PATH = ControlPanel.getIdfPath()
-EPW_PATH = ControlPanel.getEpwPath()
-
+IDF_PATH = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
 OUTPUT_DIR = os.path.dirname(IDF_PATH)  + '/output'
 
 class Environment(gym.Env):
-    def __init__(self, analysisDataList:list = None):
+    def __init__(self, epwPath, analysisDataList:list = None):
         print("init+++++++++++++++++++++++++++++++++++++")
+        self.epwPath = epwPath
         self.energyPlusController: EnergyPlusRuntimeController = None
         self.actionObserverManager: ActionObservationManager = None
         self.observation_queue: QueueOfOne = None
@@ -75,7 +74,7 @@ class Environment(gym.Env):
             runtime.callback_end_zone_timestep_after_zone_reporting(self.energyPlusController.energyplus_state, 
                                                                     self.actionObserverManager.collect_observations)
 
-            self.energyPlusController.start(runtime, IDF_PATH, EPW_PATH, OUTPUT_DIR)
+            self.energyPlusController.start(runtime, IDF_PATH, self.epwPath, OUTPUT_DIR)
 
             print("waiting for observation")
             while self.actionObserverManager.warmUpFlag:

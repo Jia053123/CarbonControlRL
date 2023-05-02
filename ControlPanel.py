@@ -4,27 +4,27 @@ from gymnasium.spaces.discrete import Discrete
 from gymnasium.spaces.multi_discrete import MultiDiscrete
 from info_for_agent import CarbonPredictor
 
-def getIdfPath():
-    p = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
-    return p
-def getEpwPath():
-    # p = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-    # p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
-    p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"
-    return p
+# def getIdfPath():
+#     p = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
+#     return p
+# def getEpwPath():
+#     # p = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
+#     p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
+#     # p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"
+#     return p
 
 ##############################################################
 def getObservationSpace():
     # observation space (upper bound not included!!): 
     #  Zone Mean Air Temp Celsius: [0, 50)
-    #  Outdoor Air Temp Celsius: [-40, 60)
+    #  Outdoor Air Temp Celsius: [-40, 60) -> normalize by dividing by 20
     #  Hour of the day: [0, 24)
-    obs_sp = Box(low=np.array([-40]), high=np.array([60]), dtype=np.float32)
+    obs_sp = Box(low=np.array([-2]), high=np.array([3]), dtype=np.float32)
     return obs_sp
 
 def getObservation(zoneMeanAirTemp, siteDrybulbTemp, boilerElecMeter, hour):
     # obs = [ZoneMeanAirTemp, SiteDrybulbTemp, hour]
-    obs = [siteDrybulbTemp]
+    obs = [siteDrybulbTemp/20]
     return obs
 
 
