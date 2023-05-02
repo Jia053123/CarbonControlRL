@@ -9,7 +9,8 @@ def getIdfPath():
     return p
 def getEpwPath():
     # p = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
-    p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
+    # p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
+    p = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"
     return p
 
 ##############################################################
@@ -65,7 +66,7 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
     carbonRate = dataForReward[2]
     comfort = dataForReward[3]
-    reward = -1 * heatElec #* carbonRate + comfort * weight
+    reward = -1 * heatElec * carbonRate / 1000000 + comfort * 3
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward):

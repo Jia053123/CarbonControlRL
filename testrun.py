@@ -5,7 +5,7 @@ from ComfortMetrics import calcComfortMetric
 import pandas as pd  
 
 idfPath = "C:/Users/Eppy/Documents/IDFs/office111_allOff_fullyOccupied_1Y.idf"
-EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
+EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"
 # EPW_PATH = "C:/Users/Eppy/Documents/WeatherFiles/USA_MA_Boston-Logan.Intl.AP.725090_TMY3.epw"
 SAVE_PATH_CSV = "C:/Users/Eppy/Documents/CarbonControlRL/Analysis/AnalysisData_baseline.csv"
 
@@ -106,7 +106,7 @@ def collect_observations(state):
 
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
         comfort = calcComfortMetric(temperature=variableValue1, month=month, day=day, hour=hour)
-        accumulatedReward = accumulatedReward - meterValue3 #* carbonRate
+        accumulatedReward = accumulatedReward - meterValue3 / 1000000 * carbonRate + comfort * 3
         rewardCount += 1
 
         analysisDataList.append([year, month, day, hour, minute, variableValue1, meterValue3, carbonRate, comfort])
