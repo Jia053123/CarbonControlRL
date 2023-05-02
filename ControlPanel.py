@@ -20,11 +20,12 @@ def getObservationSpace():
     #  Hour of the day: [0, 24)
     obs_sp = Box(low=np.array([-40]), high=np.array([60]), dtype=np.float32)
     return obs_sp
-
 def getObservation(zoneMeanAirTemp, siteDrybulbTemp, boilerElecMeter, hour):
     # obs = [ZoneMeanAirTemp, SiteDrybulbTemp, hour]
     obs = [siteDrybulbTemp]
     return obs
+def getHeatingElecConsumption(boilerElecMeter):
+    return boilerElecMeter
 
 
 ##############################################################
@@ -32,7 +33,6 @@ def getActionSpace():
     # action space: Boiler on/off and Zone heating setpoint; choosing between four options
     act_sp = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
     return act_sp
-
 def boilerOnOrOff(agentAction:np.ndarray):
     v = float('nan')
     match int(agentAction.item(0)): 
@@ -43,7 +43,6 @@ def boilerOnOrOff(agentAction:np.ndarray):
         case _:
             raise ValueError("boilerOnOrOff: invalid action")
     return v
-
 def heatSetPoint(agentAction:np.ndarray): 
     v = float('nan')
     match int(agentAction.item(1)): 
@@ -57,19 +56,10 @@ def heatSetPoint(agentAction:np.ndarray):
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter):
-    return [boilerElecMeter, zoneMeanAirTemp]
-
 def calculateReward(carbonPredictor: CarbonPredictor, 
                     year, month, day, hour, minute, 
-                    dataForReward):
-    heatElec = dataForReward[0]
+                    heatingElectricityConsumption):
     carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
-    reward = -1 * heatElec #* carbonRate
+    reward = -1 * heatingElectricityConsumption #* carbonRate
     return reward
-
-def getNewAnalysis(year, month, day, hour, minute, dataForReward):
-    return [year, month, day, hour, minute, dataForReward[1], dataForReward[0]]
-
-def getAnalysisColumns():
-    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity']
+    

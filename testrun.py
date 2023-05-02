@@ -103,7 +103,7 @@ def collect_observations(state):
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
         
-        analysisDataList.append([year, month, day, hour, minute, variableValue1, meterValue3])
+        analysisDataList.append([year, month, day, hour, minute, meterValue3])
 
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
         accumulatedReward = accumulatedReward - meterValue3 * carbonRate
@@ -151,8 +151,7 @@ print("exit code (zero is success): " + str(exitCode))
 print("reward count: " + str(rewardCount))
 print("accumulated reward: " + str(accumulatedReward))
 
-df = pd.DataFrame(analysisDataList, 
-                  columns =['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity']) 
+df = pd.DataFrame(analysisDataList, columns =['year', 'month', 'day', 'hour', 'minute', 'heating electricity']) 
 df.to_csv(SAVE_PATH_CSV, index=False)
 print("analysis data saved ****************************************") 
 

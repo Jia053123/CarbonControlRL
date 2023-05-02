@@ -11,7 +11,7 @@ class ActionObservationManager:
 
         self.actionQueue: QueueOfOne = actionQueue
         self.observationQueue: QueueOfOne = observationQueue
-        self.rewardDataQueue: QueueOfOne = heatingElecDataQueue
+        self.heatingElecDataQueue: QueueOfOne = heatingElecDataQueue
 
         NUM_OF_SENSORS = 4
         NUM_OF_ACTUATORS = 2
@@ -71,16 +71,12 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[2]) + 
                 "__" + str(self.sensorValues[3]))
 
-            observation = ControlPanel.getObservation(zoneMeanAirTemp=self.sensorValues[0], 
-                                                      siteDrybulbTemp=self.sensorValues[1], 
-                                                      boilerElecMeter=self.sensorValues[2], 
-                                                      hour=hour)
+            observation = ControlPanel.getObservation(self.sensorValues[0], self.sensorValues[1], self.sensorValues[2], hour)
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
 
-            rewardData = ControlPanel.getDataForReward(zoneMeanAirTemp=self.sensorValues[0], 
-                                                    boilerElecMeter=self.sensorValues[2])
-            self.rewardDataQueue.put_overwrite(rewardData)
+            heatingElecConsumption = ControlPanel.getHeatingElecConsumption(self.sensorValues[2])
+            self.heatingElecDataQueue.put_overwrite(heatingElecConsumption)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
         return

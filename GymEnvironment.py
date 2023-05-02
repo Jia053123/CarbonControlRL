@@ -23,11 +23,11 @@ class Environment(gym.Env):
         self.actionObserverManager: ActionObservationManager = None
         self.observation_queue: QueueOfOne = None
         self.action_queue: QueueOfOne = None
-        self.dataForReward_queue: QueueOfOne = None
+        self.heatingElecData_queue: QueueOfOne = None
 
         self.stillSizingSystem = True
         self.observation = None
-        self.dataForReward = float('nan')
+        self.heatingElectricityConsumption = float('nan')
         self.terminated = False
 
         self.analysisDataList = analysisDataList
@@ -62,13 +62,13 @@ class Environment(gym.Env):
         if not self.terminated: 
             self.observation_queue = QueueOfOne(timeout=5)
             self.action_queue = QueueOfOne(timeout=5)
-            self.dataForReward_queue = QueueOfOne(timeout=5)
+            self.heatingElecData_queue = QueueOfOne(timeout=5)
 
             self.energyPlusController = EnergyPlusRuntimeController() 
             self.actionObserverManager = ActionObservationManager(self.energyPlusController.dataExchange, 
                                                                 self.action_queue, 
                                                                 self.observation_queue, 
-                                                                self.dataForReward_queue,
+                                                                self.heatingElecData_queue,
                                                                 OUTPUT_DIR)
             
             runtime = self.energyPlusController.createRuntime()
@@ -100,7 +100,7 @@ class Environment(gym.Env):
             self.action_queue.put_wait(action)
             # energy plus runs here on its own thread
             self.observation = self.observation_queue.get_wait()
-            self.dataForReward = self.dataForReward_queue.get_wait()
+            self.heatingElectricityConsumption = self.heatingElecData_queue.get_wait()
         except (Full, Empty):
             self.terminated = True
             print("Terminated !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -113,13 +113,11 @@ class Environment(gym.Env):
         minute = minute - 1 # for the carbon script
 
         if self.analysisDataList is not None:
-            newAnalysis = ControlPanel.getNewAnalysis(year=year, month=month, day=day, hour=hour, minute=minute, 
-                                                      dataForReward=self.dataForReward)
-            self.analysisDataList.append(newAnalysis)
+            self.analysisDataList.append([year, month, day, hour, minute, self.heatingElectricityConsumption])
 
         reward = ControlPanel.calculateReward(self.carbonPredictor, 
                                               year, month, day, hour, minute, 
-                                              self.dataForReward)
+                                              self.heatingElectricityConsumption)
         self.accumulatedReward += reward
         self.rewardCount += 1
 
