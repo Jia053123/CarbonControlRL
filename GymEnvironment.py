@@ -26,7 +26,7 @@ class Environment(gym.Env):
 
         self.stillSizingSystem = True
         self.observation = None
-        self.dataForReward = float('nan')
+        self.dataForReward = None
         self.terminated = False
 
         self.analysisDataList = analysisDataList

@@ -10,7 +10,7 @@ from stable_baselines3 import SAC # much, much slower then PPO (multiple actors)
 
 
 SAVE_PATH_MODEL = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
-IDF_TIMESTEP = 6 # Timesteps/hour (must match with setting within idf file) 
+IDF_TIMESTEP = 1 # Timesteps/hour (must match with setting within idf file) 
 
 environment = Environment()
 model = PPO("MlpPolicy", environment, verbose=2, n_steps=219, gamma=0.99) # gamma: discount factor
