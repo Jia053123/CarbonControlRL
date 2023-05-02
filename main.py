@@ -15,7 +15,8 @@ IDF_TIMESTEP = 1 # Timesteps/hour (must match with setting within idf file)
 EPW_PATH_Train = "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"
 
 environment = Environment(epwPath=EPW_PATH_Train)
-model = PPO("MlpPolicy", environment, verbose=2, n_steps=219, gamma=0.99) # gamma: discount factor
+# gamma: discount factor; gae_lambda: Factor for trade-off of bias vs variance
+model = PPO("MlpPolicy", environment, verbose=2, n_steps=219, gamma=0.99, gae_lambda=0.95) 
 model.learn(total_timesteps = 8760 * IDF_TIMESTEP) 
 print("done learning ***************************************")
 

@@ -115,7 +115,8 @@ class Environment(gym.Env):
 
         if self.analysisDataList is not None:
             newAnalysis = ControlPanel.getNewAnalysis(year=year, month=month, day=day, hour=hour, minute=minute, 
-                                                      dataForReward=self.dataForReward)
+                                                      dataForReward=self.dataForReward,
+                                                      action=action)
             self.analysisDataList.append(newAnalysis)
 
         info = {}
