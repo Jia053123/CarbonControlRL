@@ -7,13 +7,15 @@ from info_for_agent import CarbonPredictor
 ##############################################################
 def getObservationSpace():
     # observation space (upper bound not included!!): 
+    #  Indoor Temp Celsius: [10, 40) -> normalize by dividing by 10
     #  Outdoor Air Temp Celsius: [-40, 60) -> normalize by dividing by 20
-    obs_sp = Box(low=np.array([-2]), high=np.array([3]), dtype=np.float32)
+    #  Carbon Trend: difference from the current rate [- 0.03, 0.03) -> normalize by multiplying by 100
+    obs_sp = Box(low=np.array([1, -2, -3]), high=np.array([4, 3, 3]), dtype=np.float32)
     return obs_sp
 
-def getObservation(zoneMeanAirTemp, siteDrybulbTemp, boilerElecMeter, hour):
+def getObservation(zoneMeanAirTemp, siteDrybulbTemp, carbonTrend, boilerElecMeter, hour):
     # obs = [ZoneMeanAirTemp, SiteDrybulbTemp, hour]
-    obs = [siteDrybulbTemp/20]
+    obs = [zoneMeanAirTemp/10, siteDrybulbTemp/20, carbonTrend*100]
     return obs
 
 
@@ -55,7 +57,7 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
     carbonRate = dataForReward[2]
     comfort = dataForReward[3]
-    reward = -1 * heatElec * carbonRate / 1000000 + comfort * 20
+    reward = -1 * heatElec * carbonRate / 1000000 + comfort * 1
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward):

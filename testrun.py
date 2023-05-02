@@ -106,7 +106,7 @@ def collect_observations(state):
 
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
         comfort = calcComfortMetric(temperature=variableValue1, month=month, day=day, hour=hour)
-        accumulatedReward = accumulatedReward - meterValue3 / 1000000 * carbonRate + comfort * 20
+        accumulatedReward = accumulatedReward - meterValue3 / 1000000 * carbonRate + comfort * 1
         rewardCount += 1
 
         analysisDataList.append([year, month, day, hour, minute, variableValue1, meterValue3, carbonRate, comfort])
