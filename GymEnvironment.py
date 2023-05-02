@@ -8,7 +8,6 @@ from QueueOfOne import QueueOfOne
 from EnergyPlusController import EnergyPlusRuntimeController
 from ActionObservationManager import ActionObservationManager
 from queue import Empty, Full
-from info_for_agent import CarbonPredictor
 import ControlPanel
 
 IDF_PATH = ControlPanel.getIdfPath()
@@ -37,7 +36,6 @@ class Environment(gym.Env):
 
         self.observation_space = ControlPanel.getObservationSpace()
         self.action_space = ControlPanel.getActionSpace()
-        self.carbonPredictor = CarbonPredictor()
 
         self.accumulatedReward = 0
         self.rewardCount = 0
@@ -112,16 +110,14 @@ class Environment(gym.Env):
         minute = self.energyPlusController.dataExchange.minutes(self.energyPlusController.energyplus_state)
         minute = minute - 1 # for the carbon script
 
+        reward = ControlPanel.calculateReward(year, month, day, hour, minute, self.dataForReward)
+        self.accumulatedReward += reward
+        self.rewardCount += 1
+
         if self.analysisDataList is not None:
             newAnalysis = ControlPanel.getNewAnalysis(year=year, month=month, day=day, hour=hour, minute=minute, 
                                                       dataForReward=self.dataForReward)
             self.analysisDataList.append(newAnalysis)
-
-        reward = ControlPanel.calculateReward(self.carbonPredictor, 
-                                              year, month, day, hour, minute, 
-                                              self.dataForReward)
-        self.accumulatedReward += reward
-        self.rewardCount += 1
 
         info = {}
         print(self.timestep)

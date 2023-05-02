@@ -3,6 +3,8 @@ from pyenergyplus.api import EnergyPlusAPI
 from QueueOfOne import QueueOfOne
 from queue import Empty, Full
 import ControlPanel
+from info_for_agent import CarbonPredictor
+from ComfortMetrics import calcComfortMetric
 
 class ActionObservationManager: 
     def __init__(self, dataExchange, actionQueue: QueueOfOne, observationQueue:QueueOfOne, heatingElecDataQueue:QueueOfOne, outputDir):
@@ -23,6 +25,8 @@ class ActionObservationManager:
         self.observationNumber = 0
         self.oldObservationNumber = 0
         self.oldActionChosen = None
+
+        self.carbonPredictor = CarbonPredictor()
 
         self.warmUpFlag = True
         return
@@ -52,6 +56,7 @@ class ActionObservationManager:
                                                                     "Pumps:Electricity")
 
         if -1 not in self.sensorHandles:
+            year = self.dataExchange.year(state)
             hour = self.dataExchange.hour(state)
             month = self.dataExchange.month(state)
             day = self.dataExchange.day_of_month(state)
@@ -71,6 +76,9 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[2]) + 
                 "__" + str(self.sensorValues[3]))
 
+            carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
+            comfortMetric = calcComfortMetric(temperature=self.sensorValues[0], month=month, day=day, hour=hour)
+
             observation = ControlPanel.getObservation(zoneMeanAirTemp=self.sensorValues[0], 
                                                       siteDrybulbTemp=self.sensorValues[1], 
                                                       boilerElecMeter=self.sensorValues[2], 
@@ -79,7 +87,9 @@ class ActionObservationManager:
             self.observationQueue.put_overwrite(observation)
 
             rewardData = ControlPanel.getDataForReward(zoneMeanAirTemp=self.sensorValues[0], 
-                                                    boilerElecMeter=self.sensorValues[2])
+                                                       boilerElecMeter=self.sensorValues[2], 
+                                                       carbonRate=carbonRate, 
+                                                       comfortMetric=comfortMetric)
             self.rewardDataQueue.put_overwrite(rewardData)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
