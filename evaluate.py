@@ -11,6 +11,7 @@ from stable_baselines3 import SAC
 from stable_baselines3.common.evaluation import evaluate_policy
 
 import pandas as pd  
+import ControlPanel
 
 PATH_MODEL = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
 SAVE_PATH_CSV = "C:/Users/Eppy/Documents/CarbonControlRL/Analysis/AnalysisData_agent.csv"
@@ -26,6 +27,6 @@ print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
 print("reward count: " + str(evalEnvironment.rewardCount))
 print("accumulated reward: " + str(evalEnvironment.accumulatedReward))
 
-df = pd.DataFrame(analysisData, columns =['year', 'month', 'day', 'hour', 'minute', 'heating electricity']) 
+df = pd.DataFrame(analysisData, columns=ControlPanel.getAnalysisColumns()) 
 df.to_csv(SAVE_PATH_CSV, index=False)
 print("analysis data saved ****************************************") 
