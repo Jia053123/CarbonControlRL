@@ -77,15 +77,12 @@ class ActionObservationManager:
                 "__" + str(self.sensorValues[3]))
 
             carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
-            if hour < 23:
-                nextCarbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour+1, minute)
-            else:
-                nextCarbonRate = carbonRate
+            carbonTrend = self.carbonPredictor.get_emissions_trend(year, month, day, hour, minute)
             comfortMetric = calcComfortMetric(temperature=self.sensorValues[0], month=month, day=day, hour=hour)
 
             observation = ControlPanel.getObservation(zoneMeanAirTemp=self.sensorValues[0], 
                                                       siteDrybulbTemp=self.sensorValues[1], 
-                                                      carbonTrend=(nextCarbonRate-carbonRate),
+                                                      carbonTrend=carbonTrend,
                                                       boilerElecMeter=self.sensorValues[2], 
                                                       hour=hour)
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info

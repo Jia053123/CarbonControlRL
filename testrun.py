@@ -104,6 +104,8 @@ def collect_observations(state):
             "__" + str(meterValue4) + 
             "__" + str(variableValue5))
 
+        if dataExchange.warmup_flag(state): 
+            return
         carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute) 
         comfort = calcComfortMetric(temperature=variableValue1, month=month, day=day, hour=hour)
         accumulatedReward = accumulatedReward - meterValue3 / 1000000 * carbonRate + comfort * 1
