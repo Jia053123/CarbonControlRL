@@ -29,8 +29,7 @@ def getObservation(zoneMeanAirTemp, siteDrybulbTemp, boilerElecMeter, hour):
 
 ##############################################################
 def getActionSpace(): 
-    # action space: Boiler on/off 
-    # Zone heating setpoint high/low
+    # action space: Boiler on/off and Zone heating setpoint; choosing between four options
     act_sp = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
     return act_sp
 
@@ -58,18 +57,19 @@ def heatSetPoint(agentAction:np.ndarray):
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric):
-    return [zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric]
+def getDataForReward(zoneMeanAirTemp, boilerElecMeter):
+    return [boilerElecMeter, zoneMeanAirTemp]
 
-def calculateReward(year, month, day, hour, minute, dataForReward):
-    heatElec = dataForReward[1]
-    carbonRate = dataForReward[2]
-    comfort = dataForReward[3]
-    reward = -1 * heatElec #* carbonRate + comfort * weight
+def calculateReward(carbonPredictor: CarbonPredictor, 
+                    year, month, day, hour, minute, 
+                    dataForReward):
+    heatElec = dataForReward[0]
+    carbonRate = carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
+    reward = -1 * heatElec #* carbonRate
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward):
-    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[3]]
+    return [year, month, day, hour, minute, dataForReward[1], dataForReward[0]]
 
 def getAnalysisColumns():
-    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'carbon rate', 'comfort metric']
+    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity']
