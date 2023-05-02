@@ -55,7 +55,7 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
     carbonRate = dataForReward[2]
     comfort = dataForReward[3]
-    reward = -1 * heatElec * carbonRate / 1000000 + comfort * 3
+    reward = -1 * heatElec * carbonRate / 1000000 + comfort * 20
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward):

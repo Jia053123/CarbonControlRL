@@ -8,5 +8,5 @@ def calcComfortMetric(temperature, month, day, hour):
     elif temperature > COMFORT_RANGE_HIGH:
         return pow((COMFORT_RANGE_HIGH - temperature), EXP_FACTOR)
     else:
-        return 0.0 # TODO: always give a small positive reward?
+        return 0.001 # always give a small positive reward?
     
