@@ -50,8 +50,8 @@ def heatSetPoint(agentAction:np.ndarray):
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric, heatingEnergy):
-    return [zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric, heatingEnergy]
+def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy):
+    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy]
 
 def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
@@ -61,7 +61,7 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward, action):
-    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[4], dataForReward[2], dataForReward[3], boilerOnOrOff(action), heatSetPoint(action)]
+    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], boilerOnOrOff(action), heatSetPoint(action)]
 
 def getAnalysisColumns():
-    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint']
+    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint']

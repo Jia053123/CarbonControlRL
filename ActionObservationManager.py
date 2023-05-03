@@ -15,7 +15,7 @@ class ActionObservationManager:
         self.observationQueue: QueueOfOne = observationQueue
         self.rewardDataQueue: QueueOfOne = heatingElecDataQueue
 
-        NUM_OF_SENSORS = 5
+        NUM_OF_SENSORS = 10
         NUM_OF_ACTUATORS = 2
         self.sensorHandles = np.repeat(-1, NUM_OF_SENSORS)
         self.sensorValues = np.repeat(float('nan'), NUM_OF_SENSORS)
@@ -51,12 +51,27 @@ class ActionObservationManager:
                                                                           "Site Outdoor Air Drybulb Temperature", 
                                                                           "ENVIRONMENT")
             self.sensorHandles[2] = self.dataExchange.get_meter_handle(state, 
-                                                                    "Boiler:Heating:Electricity")
+                                                                       "Boiler:Heating:Electricity")
             self.sensorHandles[3] = self.dataExchange.get_meter_handle(state, 
-                                                                    "Pumps:Electricity")
+                                                                       "Pumps:Electricity")
             self.sensorHandles[4] = self.dataExchange.get_variable_handle(state, 
                                                                           "Boiler Heating Energy", 
                                                                           "BOILER")
+            self.sensorHandles[5] = self.dataExchange.get_variable_handle(state, 
+                                                                          "System Node Temperature", 
+                                                                          "BOILER WATER INLET NODE")
+            self.sensorHandles[6] = self.dataExchange.get_variable_handle(state, 
+                                                                          "System Node Temperature", 
+                                                                          "BOILER WATER OUTLET NODE")
+            self.sensorHandles[7] = self.dataExchange.get_variable_handle(state, 
+                                                                          "System Node Mass Flow Rate", 
+                                                                          "BOILER WATER INLET NODE")
+            self.sensorHandles[8] = self.dataExchange.get_variable_handle(state, 
+                                                                          "System Node Mass Flow Rate", 
+                                                                          "BOILER WATER OUTLET NODE")
+            self.sensorHandles[9] = self.dataExchange.get_meter_handle(state, 
+                                                                       "Heating:Electricity")
+            
 
         if -1 not in self.sensorHandles:
             year = self.dataExchange.year(state)
@@ -94,6 +109,7 @@ class ActionObservationManager:
 
             rewardData = ControlPanel.getDataForReward(zoneMeanAirTemp=self.sensorValues[0], 
                                                        boilerElecMeter=self.sensorValues[2], 
+                                                       pumpElecMeter=self.sensorValues[3],
                                                        carbonRate=carbonRate, 
                                                        comfortMetric=comfortMetric, 
                                                        heatingEnergy=self.sensorValues[4])
