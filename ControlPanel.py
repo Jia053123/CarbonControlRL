@@ -41,17 +41,17 @@ def heatSetPoint(agentAction:np.ndarray):
     v = float('nan')
     match int(agentAction.item(1)): 
         case 0: 
-            v = 22.0
+            v = 15.0
         case 1:
-            v = 28.0
+            v = 25.0
         case _:
             raise ValueError("heatSetPoint: invalid action")
     return v
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric):
-    return [zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric]
+def getDataForReward(zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric, heatingEnergy):
+    return [zoneMeanAirTemp, boilerElecMeter, carbonRate, comfortMetric, heatingEnergy]
 
 def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
@@ -61,7 +61,7 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward, action):
-    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[3], boilerOnOrOff(action), heatSetPoint(action)]
+    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[4], dataForReward[2], dataForReward[3], boilerOnOrOff(action), heatSetPoint(action)]
 
 def getAnalysisColumns():
-    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint']
+    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint']

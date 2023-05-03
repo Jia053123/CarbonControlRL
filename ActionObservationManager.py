@@ -15,7 +15,7 @@ class ActionObservationManager:
         self.observationQueue: QueueOfOne = observationQueue
         self.rewardDataQueue: QueueOfOne = heatingElecDataQueue
 
-        NUM_OF_SENSORS = 4
+        NUM_OF_SENSORS = 5
         NUM_OF_ACTUATORS = 2
         self.sensorHandles = np.repeat(-1, NUM_OF_SENSORS)
         self.sensorValues = np.repeat(float('nan'), NUM_OF_SENSORS)
@@ -54,6 +54,9 @@ class ActionObservationManager:
                                                                     "Boiler:Heating:Electricity")
             self.sensorHandles[3] = self.dataExchange.get_meter_handle(state, 
                                                                     "Pumps:Electricity")
+            self.sensorHandles[4] = self.dataExchange.get_variable_handle(state, 
+                                                                          "Boiler Heating Energy", 
+                                                                          "BOILER")
 
         if -1 not in self.sensorHandles:
             year = self.dataExchange.year(state)
@@ -66,6 +69,7 @@ class ActionObservationManager:
             self.sensorValues[1] = self.dataExchange.get_variable_value(state, self.sensorHandles[1])
             self.sensorValues[2] = self.dataExchange.get_meter_value(state, self.sensorHandles[2]) 
             self.sensorValues[3] = self.dataExchange.get_meter_value(state, self.sensorHandles[3]) 
+            self.sensorValues[4] = self.dataExchange.get_variable_value(state, self.sensorHandles[4]) 
 
             print(str(month) +
                 ":" + str(day) +
@@ -91,7 +95,8 @@ class ActionObservationManager:
             rewardData = ControlPanel.getDataForReward(zoneMeanAirTemp=self.sensorValues[0], 
                                                        boilerElecMeter=self.sensorValues[2], 
                                                        carbonRate=carbonRate, 
-                                                       comfortMetric=comfortMetric)
+                                                       comfortMetric=comfortMetric, 
+                                                       heatingEnergy=self.sensorValues[4])
             self.rewardDataQueue.put_overwrite(rewardData)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
