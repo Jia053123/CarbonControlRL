@@ -85,6 +85,11 @@ class ActionObservationManager:
             self.sensorValues[2] = self.dataExchange.get_meter_value(state, self.sensorHandles[2]) 
             self.sensorValues[3] = self.dataExchange.get_meter_value(state, self.sensorHandles[3]) 
             self.sensorValues[4] = self.dataExchange.get_variable_value(state, self.sensorHandles[4]) 
+            self.sensorValues[5] = self.dataExchange.get_variable_value(state, self.sensorHandles[5]) 
+            self.sensorValues[6] = self.dataExchange.get_variable_value(state, self.sensorHandles[6]) 
+            self.sensorValues[7] = self.dataExchange.get_variable_value(state, self.sensorHandles[7]) 
+            self.sensorValues[8] = self.dataExchange.get_variable_value(state, self.sensorHandles[8]) 
+            self.sensorValues[9] = self.dataExchange.get_meter_value(state, self.sensorHandles[9]) 
 
             print(str(month) +
                 ":" + str(day) +
@@ -112,7 +117,12 @@ class ActionObservationManager:
                                                        pumpElecMeter=self.sensorValues[3],
                                                        carbonRate=carbonRate, 
                                                        comfortMetric=comfortMetric, 
-                                                       heatingEnergy=self.sensorValues[4])
+                                                       heatingEnergy=self.sensorValues[4], 
+                                                       boilerInletTemp=self.sensorValues[5], 
+                                                       boilerOutletTemp=self.sensorValues[6], 
+                                                       boilerInletFlow=self.sensorValues[7], 
+                                                       boilerOutletFlow=self.sensorValues[8], 
+                                                       heatingElec=self.sensorValues[9])
             self.rewardDataQueue.put_overwrite(rewardData)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue

@@ -50,8 +50,8 @@ def heatSetPoint(agentAction:np.ndarray):
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy):
-    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy]
+def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec):
+    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec]
 
 def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
@@ -61,7 +61,9 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward, action):
-    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], boilerOnOrOff(action), heatSetPoint(action)]
+    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], boilerOnOrOff(action), heatSetPoint(action), 
+            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10]]
 
 def getAnalysisColumns():
-    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint']
+    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint', 
+            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity']
