@@ -23,23 +23,23 @@ def getObservation(zoneMeanAirTemp, siteDrybulbTemp, carbonTrend, boilerElecMete
 def getActionSpace(): 
     # action space: Boiler on/off 
     # Zone heating setpoint high/low
-    act_sp = MultiDiscrete(np.array([2, 2])) #[{0, 1}, {0, 1}]
+    act_sp = MultiDiscrete(np.array([2])) #[{0, 1}, {0, 1}]
     return act_sp
 
-def boilerOnOrOff(agentAction:np.ndarray):
-    v = float('nan')
-    match int(agentAction.item(0)): 
-        case 0: 
-            v = 0.0
-        case 1:
-            v = 1.0
-        case _:
-            raise ValueError("boilerOnOrOff: invalid action")
-    return v
+# def boilerOnOrOff(agentAction:np.ndarray):
+#     v = float('nan')
+#     match int(agentAction.item(0)): 
+#         case 0: 
+#             v = 0.0
+#         case 1:
+#             v = 1.0
+#         case _:
+#             raise ValueError("boilerOnOrOff: invalid action")
+#     return v
 
 def heatSetPoint(agentAction:np.ndarray): 
     v = float('nan')
-    match int(agentAction.item(1)): 
+    match int(agentAction.item(0)): 
         case 0: 
             v = 15.0
         case 1:
@@ -50,8 +50,8 @@ def heatSetPoint(agentAction:np.ndarray):
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec):
-    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec]
+def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec, outdoorDryBulb):
+    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec, outdoorDryBulb]
 
 def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
@@ -61,9 +61,9 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward, action):
-    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], boilerOnOrOff(action), heatSetPoint(action), 
-            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10]]
+    return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], heatSetPoint(action), 
+            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10], dataForReward[11]]
 
 def getAnalysisColumns():
-    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'boiler on off', 'heating setpoint', 
-            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity']
+    return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'heating setpoint', 
+            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity', 'outdoor drybulb']
