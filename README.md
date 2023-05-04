@@ -22,7 +22,7 @@ Install Stable Baselines 3, Bleeding Edge version:
 pip install git+https://github.com/DLR-RM/stable-baselines3
 ```
 
-Create IDF files and EPW files directories outside of the project folder, and modify the paths in testrun.py (used to run energyplus without agent, with hard-coded or no actuator settings), main.py (run the train the agent) and evaluate.py (run to load and test the agent)
+Create IDF files and EPW files directories outside of the project folder, and modify the paths in testrun.py (used to run energyplus without agent, with hard-coded or no actuator settings), main.py (run the train the agent), evaluate.py (run to load and test the agent), and GymEnvironment.py. 
 
 First run the main.py to train the agent, then run evaluate.py to test it. 
 
