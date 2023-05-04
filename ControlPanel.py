@@ -23,7 +23,7 @@ def getObservation(zoneMeanAirTemp, siteDrybulbTemp, carbonTrend, boilerElecMete
 def getActionSpace(): 
     # action space: Boiler on/off 
     # Zone heating setpoint high/low
-    act_sp = MultiDiscrete(np.array([2])) #[{0, 1}, {0, 1}]
+    act_sp = MultiDiscrete(np.array([3])) #[{0, 1}, {0, 1}]
     return act_sp
 
 # def boilerOnOrOff(agentAction:np.ndarray):
@@ -43,6 +43,8 @@ def heatSetPoint(agentAction:np.ndarray):
         case 0: 
             v = 15.0
         case 1:
+            v = 20.0
+        case 2:
             v = 25.0
         case _:
             raise ValueError("heatSetPoint: invalid action")

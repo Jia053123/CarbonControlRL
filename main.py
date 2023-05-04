@@ -13,8 +13,8 @@ SAVE_PATH_MODEL = "C:/Users/Eppy/Documents/CarbonControlRL/Models/TrainedModel"
 EPW_PATHS_Train = ["C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw", 
                    "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw"]
 
-IDF_TIMESTEP = 6 # Timesteps/hour (must match with setting within idf file) 
-NUM_OF_EPISODES = 10
+IDF_TIMESTEP = 10 # Timesteps/hour (must match with setting within idf file) 
+NUM_OF_EPISODES = 100
 
 environment = Environment(epwPaths=EPW_PATHS_Train)
 # gamma: discount factor; gae_lambda: Factor for trade-off of bias vs variance
