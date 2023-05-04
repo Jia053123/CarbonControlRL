@@ -36,11 +36,13 @@ class EnergyPlusRuntimeController:
     def stop(self): 
         print("stopping energy plus +++++++++++++++++++++++++++++++++++++++++")
         self.energyplus_api.runtime.clear_callbacks()
+        self.energyplus_api.state_manager.reset_state(self.energyplus_state)
         self.energyplus_api.state_manager.delete_state(self.energyplus_state) 
         
         if self.energyplus_exec_thread is not None:
             self.energyplus_exec_thread.join()
             self.energyplus_exec_thread = None
+            print("energy plus stopped +++++++++++++++++++++++++++++++++++++++++")
   
         # self.energyplus_api.runtime.clear_callbacks()
         # self.energyplus_api.state_manager.delete_state(self.energyplus_state) 
