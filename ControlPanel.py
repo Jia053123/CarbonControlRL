@@ -23,7 +23,7 @@ def getObservation(zoneMeanAirTemp, siteDrybulbTemp, carbonTrend, boilerElecMete
 def getActionSpace(): 
     # action space: Boiler on/off 
     # Zone heating setpoint high/low
-    act_sp = MultiDiscrete(np.array([3])) #[{0, 1}, {0, 1}]
+    act_sp = MultiDiscrete(np.array([2])) #[{0, 1}, {0, 1}]
     return act_sp
 
 # def boilerOnOrOff(agentAction:np.ndarray):
@@ -43,8 +43,6 @@ def heatSetPoint(agentAction:np.ndarray):
         case 0: 
             v = 15.0
         case 1:
-            v = 20.0
-        case 2:
             v = 25.0
         case _:
             raise ValueError("heatSetPoint: invalid action")
@@ -59,13 +57,19 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
     carbonRate = dataForReward[2]
     comfort = dataForReward[3]
-    reward = -1 * heatElec * carbonRate / 1000000 + comfort * 1
+    rawReward = -1 * heatElec * carbonRate / 1000000 + comfort * 1
+    reward = 0
+    if rawReward < -100:
+        reward = 0
+    else:
+        reward = 1
     return reward
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward, action):
+    reward = calculateReward(year, month, day, hour, minute, dataForReward)
     return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], heatSetPoint(action), 
-            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10], dataForReward[11], dataForReward[12]]
+            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10], dataForReward[11], dataForReward[12], reward]
 
 def getAnalysisColumns():
     return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'heating setpoint', 
-            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity', 'outdoor drybulb', 'zone mean radient temp']
+            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity', 'outdoor drybulb', 'zone mean radient temp', 'reward']
