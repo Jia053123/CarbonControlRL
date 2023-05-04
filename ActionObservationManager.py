@@ -91,14 +91,14 @@ class ActionObservationManager:
             self.sensorValues[8] = self.dataExchange.get_variable_value(state, self.sensorHandles[8]) 
             self.sensorValues[9] = self.dataExchange.get_meter_value(state, self.sensorHandles[9]) 
 
-            print(str(month) +
-                ":" + str(day) +
-                ":" + str(hour) + 
-                ":" + str(minute) + 
-                "__" + str(self.sensorValues[0]) + 
-                "__" + str(self.sensorValues[1]) + 
-                "__" + str(self.sensorValues[2]) + 
-                "__" + str(self.sensorValues[3]))
+            # print(str(month) +
+            #     ":" + str(day) +
+            #     ":" + str(hour) + 
+            #     ":" + str(minute) + 
+            #     "__" + str(self.sensorValues[0]) + 
+            #     "__" + str(self.sensorValues[1]) + 
+            #     "__" + str(self.sensorValues[2]) + 
+            #     "__" + str(self.sensorValues[3]))
 
             carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
             carbonTrend = self.carbonPredictor.get_emissions_trend(year, month, day, hour, minute)
@@ -133,9 +133,9 @@ class ActionObservationManager:
         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], ControlPanel.heatSetPoint(action))
 
         self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
-        print(self.actuatorValues[0])
+        # print(self.actuatorValues[0])
         self.actuatorValues[1] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[1])
-        print("____" + str(self.actuatorValues[1]))
+        # print("____" + str(self.actuatorValues[1]))
         return
 
     def send_actions(self, state):

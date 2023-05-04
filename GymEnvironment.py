@@ -120,7 +120,7 @@ class Environment(gym.Env):
             self.analysisDataList.append(newAnalysis)
 
         info = {}
-        print(self.timestep)
+        # print(self.timestep)
         return self.observation, reward, self.terminated, False, info
     
     def render(self):
