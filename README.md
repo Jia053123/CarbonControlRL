@@ -26,7 +26,9 @@ Create IDF files and EPW files directories outside of the project folder, and mo
 
 First run the main.py to train the agent, then run evaluate.py to test it. 
 
+To save the available sensors and actuators as csv, run testrun.py with line 64 set to True. Make sure to set it back to False afterwards. The csv file will be saved in the output folder within the IDF folder. 
 
+The sensors history data are saved in Analysis folder (SAVE_PATH_CSV), and trained models in Models folder. 
 ============================================
 
 Use the DesignBuilder's example file: under floor heating example
