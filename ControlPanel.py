@@ -13,9 +13,9 @@ def getObservationSpace():
     obs_sp = Box(low=np.array([1, -2, -3]), high=np.array([4, 3, 3]), dtype=np.float32)
     return obs_sp
 
-def getObservation(zoneMeanAirTemp, siteDrybulbTemp, carbonTrend, boilerElecMeter, hour):
+def getObservation(zoneMeanAirTemp, siteDrybulbTemp, carbonTrend, boilerElecMeter, hour, zoneMeanRadientTemp):
     # obs = [ZoneMeanAirTemp, SiteDrybulbTemp, hour]
-    obs = [zoneMeanAirTemp/10, siteDrybulbTemp/20, carbonTrend*100]
+    obs = [zoneMeanRadientTemp/10, siteDrybulbTemp/20, carbonTrend*100]
     return obs
 
 
@@ -50,8 +50,8 @@ def heatSetPoint(agentAction:np.ndarray):
 
 
 ##############################################################
-def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec, outdoorDryBulb):
-    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec, outdoorDryBulb]
+def getDataForReward(zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec, outdoorDryBulb, zoneMeanRadientTemp):
+    return [zoneMeanAirTemp, boilerElecMeter, pumpElecMeter, carbonRate, comfortMetric, heatingEnergy, boilerInletTemp, boilerOutletTemp, boilerInletFlow, boilerOutletFlow, heatingElec, outdoorDryBulb, zoneMeanRadientTemp]
 
 def calculateReward(year, month, day, hour, minute, dataForReward):
     heatElec = dataForReward[1]
@@ -62,8 +62,8 @@ def calculateReward(year, month, day, hour, minute, dataForReward):
 
 def getNewAnalysis(year, month, day, hour, minute, dataForReward, action):
     return [year, month, day, hour, minute, dataForReward[0], dataForReward[1], dataForReward[2], dataForReward[5], dataForReward[3], dataForReward[4], heatSetPoint(action), 
-            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10], dataForReward[11]]
+            dataForReward[6], dataForReward[7], dataForReward[8], dataForReward[9], dataForReward[10], dataForReward[11], dataForReward[12]]
 
 def getAnalysisColumns():
     return ['year', 'month', 'day', 'hour', 'minute', 'zone mean air temp', 'heating electricity', 'pump electricity', 'heating Energy', 'carbon rate', 'comfort metric', 'heating setpoint', 
-            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity', 'outdoor drybulb']
+            'boiler inlet temp', 'boiler outlet temp', 'boiler inlet flow', 'boiler outlet flow', 'heating electricity', 'outdoor drybulb', 'zone mean radient temp']

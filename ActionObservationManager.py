@@ -15,7 +15,7 @@ class ActionObservationManager:
         self.observationQueue: QueueOfOne = observationQueue
         self.rewardDataQueue: QueueOfOne = heatingElecDataQueue
 
-        NUM_OF_SENSORS = 10
+        NUM_OF_SENSORS = 11
         NUM_OF_ACTUATORS = 2
         self.sensorHandles = np.repeat(-1, NUM_OF_SENSORS)
         self.sensorValues = np.repeat(float('nan'), NUM_OF_SENSORS)
@@ -71,6 +71,9 @@ class ActionObservationManager:
                                                                           "BOILER WATER OUTLET NODE")
             self.sensorHandles[9] = self.dataExchange.get_meter_handle(state, 
                                                                        "Heating:Electricity")
+            self.sensorHandles[10] = self.dataExchange.get_variable_handle(state, 
+                                                                          "Zone Mean Radiant Temperature", 
+                                                                          "BLOCK1:ZONE1")
             
 
         if -1 not in self.sensorHandles:
@@ -90,6 +93,7 @@ class ActionObservationManager:
             self.sensorValues[7] = self.dataExchange.get_variable_value(state, self.sensorHandles[7]) 
             self.sensorValues[8] = self.dataExchange.get_variable_value(state, self.sensorHandles[8]) 
             self.sensorValues[9] = self.dataExchange.get_meter_value(state, self.sensorHandles[9]) 
+            self.sensorValues[10] = self.dataExchange.get_variable_value(state, self.sensorHandles[10]) 
 
             # print(str(month) +
             #     ":" + str(day) +
@@ -102,13 +106,14 @@ class ActionObservationManager:
 
             carbonRate = self.carbonPredictor.get_emissions_rate(year, month, day, hour, minute)
             carbonTrend = self.carbonPredictor.get_emissions_trend(year, month, day, hour, minute)
-            comfortMetric = calcComfortMetric(temperature=self.sensorValues[0], month=month, day=day, hour=hour)
+            comfortMetric = calcComfortMetric(temperature=self.sensorValues[10], month=month, day=day, hour=hour)
 
             observation = ControlPanel.getObservation(zoneMeanAirTemp=self.sensorValues[0], 
                                                       siteDrybulbTemp=self.sensorValues[1], 
                                                       carbonTrend=carbonTrend,
                                                       boilerElecMeter=self.sensorValues[2], 
-                                                      hour=hour)
+                                                      hour=hour, 
+                                                      zoneMeanRadientTemp=self.sensorValues[10])
             # if the previous observation is taken we want to overwrite the value so the agent always gets the latest info
             self.observationQueue.put_overwrite(observation)
 
@@ -123,7 +128,8 @@ class ActionObservationManager:
                                                        boilerInletFlow=self.sensorValues[7], 
                                                        boilerOutletFlow=self.sensorValues[8], 
                                                        heatingElec=self.sensorValues[9], 
-                                                       outdoorDryBulb=self.sensorValues[1])
+                                                       outdoorDryBulb=self.sensorValues[1], 
+                                                       zoneMeanRadientTemp=self.sensorValues[10])
             self.rewardDataQueue.put_overwrite(rewardData)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
