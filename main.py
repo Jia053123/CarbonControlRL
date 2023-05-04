@@ -14,7 +14,7 @@ EPW_PATHS_Train = ["C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2019.epw",
                    "C:/Users/Eppy/Documents/WeatherFiles/KACV-Eureka-2020.epw"]
 
 IDF_TIMESTEP = 6 # Timesteps/hour (must match with setting within idf file) 
-NUM_OF_EPISODES = 5
+NUM_OF_EPISODES = 4
 
 environment = Environment(epwPaths=EPW_PATHS_Train)
 # gamma: discount factor; gae_lambda: Factor for trade-off of bias vs variance

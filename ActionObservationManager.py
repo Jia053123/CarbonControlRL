@@ -129,14 +129,14 @@ class ActionObservationManager:
                                                        boilerOutletFlow=self.sensorValues[8], 
                                                        heatingElec=self.sensorValues[9], 
                                                        outdoorDryBulb=self.sensorValues[1], 
-                                                       zoneMeanRadientTemp=self.sensorValues[10])
+                                                       zoneMeanRadientTemp=self.sensorValues[10], 
+                                                       carbonTrend=carbonTrend)
             self.rewardDataQueue.put_overwrite(rewardData)
 
             self.observationNumber += 1 # a new observation is already available! Wait for the new action the agent will soon issue
         return
 
     def set_actuators(self, action, state): 
-        # self.dataExchange.set_actuator_value(state, self.actuatorHandles[0], ControlPanel.boilerOnOrOff(action))
         self.dataExchange.set_actuator_value(state, self.actuatorHandles[1], ControlPanel.heatSetPoint(action))
 
         self.actuatorValues[0] = self.dataExchange.get_actuator_value(state, self.actuatorHandles[0])
