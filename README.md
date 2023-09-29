@@ -1,4 +1,17 @@
- To run unit tests: 
+Edit ControlPanel.py to: 
+- Define Observation Space
+- Create Observation from Sensor Data
+- Define Action Space
+- Generate Actuator Values from Agent Action
+- Create Data for Reward from Sensor Data
+- Define Reward Function
+- Create History Analysis Data from Sensor Data
+
+![ControlPanel.py screenshot](http://jialiangxiang.com/wordpress/wp-content/uploads/2023/09/Testbed-Screenshot.png) 
+ 
+============================================== 
+
+To run unit tests: 
 
  ```shell
  python UnitTests.py
